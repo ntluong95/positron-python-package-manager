@@ -7,6 +7,7 @@ import { getImportName } from './utils'; // ✅ Import the helper
 export interface PyPackageInfo {
     name: string;
     version: string;
+    latestVersion?: string;
     libpath: string;
     locationtype: string;
     title: string;
@@ -94,10 +95,21 @@ export class PyPackageItem extends vscode.TreeItem {
     constructor(public pkg: PyPackageInfo) {
         super(pkg.name, vscode.TreeItemCollapsibleState.None);
 
-        this.description = `${pkg.version} (${pkg.locationtype})`;
+        const currentVersion = pkg.version;
+        const latestVersion = pkg.latestVersion;
+
+        const versionText = latestVersion && latestVersion !== currentVersion
+            ? `${currentVersion} → ${latestVersion}` // shows version update
+            : currentVersion;
+
+        this.description = `${versionText} (${pkg.locationtype})`; // ✅ Restore locationtype here
         this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
 
-        this.contextValue = 'PyPackage';
+        this.contextValue = latestVersion && latestVersion !== currentVersion
+            ? 'canUpdate'
+            : 'PyPackage';
+
+        // this.iconPath = new vscode.ThemeIcon('circle-outline');
 
         this.checkboxState = pkg.loaded
             ? vscode.TreeItemCheckboxState.Checked

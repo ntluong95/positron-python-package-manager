@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { SidebarProvider, PyPackageInfo } from './sidebar';
-import { getImportName } from './utils'; // ✅ import it here!
+import { getImportName } from './utils'; 
 
 const execPromise = promisify(exec);
 

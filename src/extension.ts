@@ -65,8 +65,8 @@ export function activate(context: vscode.ExtensionContext) {
             uninstallPackage(item, sidebarProvider);
         }),
 
-        vscode.commands.registerCommand('positron-python-package-manager.updatePackages', () => {
-            updatePackages(sidebarProvider);
+        vscode.commands.registerCommand('positron-python-package-manager.updatePackage', (item: PyPackageItem | undefined) => {
+            updatePackages(item, sidebarProvider);
         }),
 
         vscode.commands.registerCommand('positron-python-package-manager.openHelp', (pkgName: string) => {
