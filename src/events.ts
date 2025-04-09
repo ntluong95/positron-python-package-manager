@@ -10,7 +10,7 @@ import { refreshPackages } from './refresh';
  */
 export function getRegisterRuntimeEvent(sidebarProvider: SidebarProvider): vscode.Disposable {
     const RegisterRuntimeEvent = positron.runtime.onDidRegisterRuntime((event) => {
-        if (event.languageId !== 'python') { return; } // ⬅️ changed from 'r' to 'python'
+        if (event.languageId !== 'python') { return; } 
         refreshPackages(sidebarProvider);
     });
     return RegisterRuntimeEvent;
@@ -22,7 +22,7 @@ export function getRegisterRuntimeEvent(sidebarProvider: SidebarProvider): vscod
  */
 export function getChangeForegroundEvent(sidebarProvider: SidebarProvider): vscode.Disposable {
     const ChangeForegroundEvent = positron.runtime.onDidChangeForegroundSession((event) => {
-        if (!event?.startsWith('python-')) { return; } // ⬅️ changed from 'r-' to 'python-'
+        if (!event?.startsWith('python-')) { return; } 
         refreshPackages(sidebarProvider);
     });
     return ChangeForegroundEvent;

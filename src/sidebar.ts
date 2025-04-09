@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as positron from 'positron';
 import { filter } from 'fuzzaldrin-plus';
 import { refreshPackages } from './refresh';
-import { getImportName } from './utils'; // ✅ Import the helper
+import { getImportName } from './utils'; 
 
 export interface PyPackageInfo {
     name: string;
@@ -73,7 +73,7 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
 
         positron.runtime.executeCode('python', code, true, undefined, positron.RuntimeCodeExecutionMode.Interactive)
             .then(() => {
-                this._onDidChangeTreeData.fire(); // ✅ Refresh tree immediately after import
+                this._onDidChangeTreeData.fire(); 
             });
     }
 
@@ -102,8 +102,8 @@ export class PyPackageItem extends vscode.TreeItem {
             ? `${currentVersion} → ${latestVersion}` // shows version update
             : currentVersion;
 
-        this.description = `${versionText} (${pkg.locationtype})`; // ✅ Restore locationtype here
-        this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
+        this.description = `${versionText} (${pkg.locationtype})`; 
+        // this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
 
         this.contextValue = latestVersion && latestVersion !== currentVersion
             ? 'canUpdate'

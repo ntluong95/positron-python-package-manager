@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import * as positron from 'positron';
 
-import { refreshPackages } from './refresh';
+import { refreshPackages, refreshOutdatedPackages } from './refresh';
 import { SidebarProvider, PyPackageItem } from './sidebar';
 import { installPackages, uninstallPackage, updatePackages } from './install';
 import { getChangeForegroundEvent, getRegisterRuntimeEvent } from './events';
-import { getImportName } from './utils'; // ✅ Import mapping helper
+import { getImportName } from './utils'; 
 
 export function activate(context: vscode.ExtensionContext) {
     const sidebarProvider = new SidebarProvider();
@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
     // ✅ Initialize sidebar immediately
     sidebarProvider.refresh([]);
 
-    console.log('✅ Positron Python Package Manager extension activated!');
+    console.log('Positron Python Package Manager extension activated!');
 
     // 📦 Create sidebar tree
     const treeView = vscode.window.createTreeView('pythonPackageView', {
@@ -67,6 +67,10 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.commands.registerCommand('positron-python-package-manager.updatePackage', (item: PyPackageItem | undefined) => {
             updatePackages(item, sidebarProvider);
+        }),
+
+        vscode.commands.registerCommand('positron-python-package-manager.checkOutdatedPackages', async () => {
+            await refreshOutdatedPackages(sidebarProvider);
         }),
 
         vscode.commands.registerCommand('positron-python-package-manager.openHelp', (pkgName: string) => {

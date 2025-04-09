@@ -1,8 +1,8 @@
-# 📦 Positron R Package Manager
+# 📦 Positron Python Package Manager
 
 Manage your Python extensions from within [Positron](https://positron.posit.co/) — the RStudio-style package manager for the modern data science IDE.
 
-![](resources/screenshot.png)
+![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/screenshot.png)
 
 ---
 

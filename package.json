@@ -58,14 +58,14 @@
         "icon": "$(trash)"
       },
       {
-        "command": "positron-python-package-manager.updatePackages",
-        "title": "%update.packages%",
-        "icon": "$(arrow-circle-up)"
-      },
-      {
         "command": "positron-python-package-manager.refreshPackages",
         "title": "%refresh.packages%",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "positron-python-package-manager.checkOutdatedPackages",
+        "title": "Check Outdated Packages",
+        "icon": "$(arrow-circle-up)"
       },
       {
         "command": "positron-python-package-manager.searchPackages",
@@ -86,7 +86,7 @@
       "positron-python-packages": [
         {
           "id": "pythonPackageView",
-          "name": "Installed Packages",
+          "name": "Package Manager",
           "icon": "resources/dep.svg"
         }
       ]
@@ -99,11 +99,6 @@
           "group": "navigation@1"
         },
         {
-          "command": "positron-python-package-manager.updatePackages",
-          "when": "view == pythonPackageView",
-          "group": "navigation@2"
-        },
-        {
           "command": "positron-python-package-manager.searchPackages",
           "when": "view == pythonPackageView",
           "group": "navigation@99"
@@ -112,6 +107,11 @@
           "command": "positron-python-package-manager.refreshPackages",
           "when": "view == pythonPackageView",
           "group": "navigation@100"
+        },
+        {
+          "command": "positron-python-package-manager.checkOutdatedPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
