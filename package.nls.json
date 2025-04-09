@@ -1,0 +1,12 @@
+{
+    "display.name": "Positron Python Package Manager",
+    "short.name": "Python Package Manager",
+    "description": "Mimic RStudio's package management capabilities for Positron.",
+    "filterOutdatedIfUpToDateElsewhere": "Filter out outdated packages if an up-to-date version is installed in another library path during updates.",
+    "install.packages": "Python: Install Packages",
+    "uninstall.package": "Python: Uninstall Package",
+    "update.packages": "Python: Update Installed Packages",
+    "refresh.packages": "Python: Refresh package information",
+    "search.packages": "Python: Search for installed packages",
+    "packages": "Packages"
+}

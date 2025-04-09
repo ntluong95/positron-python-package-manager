@@ -1,0 +1,156 @@
+{
+  "name": "positron-python-package-manager",
+  "displayName": "%display.name%",
+  "description": "%description%",
+  "version": "0.0.1",
+  "publisher": "ntluong95",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ntluong95/positron-python-package-manager.git"
+  },
+  "icon": "resources/icon.png",
+  "license": "MIT",
+  "extensionKind": [
+    "workspace"
+  ],
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Data Science",
+    "Visualization"
+  ],
+  "keywords": [
+    "python",
+    "package",
+    "Positron",
+    "pandas",
+    "install",
+    "uninstall",
+    "update",
+    "PyPI",
+    "search"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "%short.name%",
+      "properties": {
+        "positron-python-package-manager.filterOutdatedIfUpToDateElsewhere": {
+          "type": "boolean",
+          "scope": "machine-overridable",
+          "default": true,
+          "description": "%filterOutdatedIfUpToDateElsewhere%"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "positron-python-package-manager.installPackages",
+        "title": "%install.packages%",
+        "icon": "$(desktop-download)"
+      },
+      {
+        "command": "positron-python-package-manager.uninstallPackage",
+        "title": "%uninstall.package%",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "positron-python-package-manager.updatePackages",
+        "title": "%update.packages%",
+        "icon": "$(arrow-circle-up)"
+      },
+      {
+        "command": "positron-python-package-manager.refreshPackages",
+        "title": "%refresh.packages%",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "positron-python-package-manager.searchPackages",
+        "title": "%search.packages%",
+        "icon": "$(search)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "positron-python-packages",
+          "title": "Python",
+          "icon": "resources/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "positron-python-packages": [
+        {
+          "id": "pythonPackageView",
+          "name": "Installed Packages",
+          "icon": "resources/dep.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "positron-python-package-manager.installPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "positron-python-package-manager.updatePackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "positron-python-package-manager.searchPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@99"
+        },
+        {
+          "command": "positron-python-package-manager.refreshPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@100"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "positron-python-package-manager.uninstallPackage",
+          "when": "view == pythonPackageView && viewItem == PyPackage",
+          "group": "inline@999"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/fuzzaldrin-plus": "^0.6.5",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.21.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.7.3",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "fuzzaldrin-plus": "^0.6.0"
+  },
+  "l10n": "./l10n"
+}

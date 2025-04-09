@@ -1,0 +1,93 @@
+name: Publish Extension
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  preparation:
+    name: ✅ Preparation
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: 🔧 Build extension
+        run: yarn run package
+
+      - name: 📦 Package extension
+        run: npx vsce package
+
+      - name: 🏷 Extract version
+        id: extract
+        run: echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: 📤 Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-vsix
+          path: "*.vsix"
+
+  publish_ovsx:
+    name: 🚀 Publish to Open VSX
+    needs: preparation
+    runs-on: ubuntu-latest
+    continue-on-error: true # GitHub release will still be created despite Open VSX errors.
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download .vsix artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-vsix
+
+      - name: 🧼 Resolve VSIX filename
+        id: find_vsix
+        run: echo "vsix=$(ls *.vsix)" >> "$GITHUB_OUTPUT"
+
+      - name: 📦 Publish extension to Open VSX
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          extensionFile: ${{ steps.find_vsix.outputs.vsix }}
+
+  github_release:
+    name: 📝 Create GitHub Release
+    needs: preparation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download .vsix artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-vsix
+
+      - name: 📤 Upload to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.vsix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
