@@ -61,7 +61,7 @@ async function getPythonInterpreter(): Promise<string | undefined> {
 //     return infoMap;
 // }
 
-// Main function: Refresh packages
+// 🌟 Main function: Only installed packages
 export async function refreshPackages(sidebarProvider: SidebarProvider): Promise<void> {
     try {
         const pythonPath = await getPythonInterpreter();
@@ -70,62 +70,70 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
             return;
         }
 
-        let pipOut = '';
-        let modulesOut = '';
+        const pipResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
+        const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
 
-        try {
-            const pipResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
-            pipOut = pipResult.stdout;
-        } catch (err) {
-            vscode.window.showErrorMessage(`❌ Failed to run pip list: ${(err as Error).message}`);
-            sidebarProvider.refresh([]);
-            return;
-        }
+        const parsed: { name: string; version: string }[] = JSON.parse(pipResult.stdout);
+        const importedModules: string[] = JSON.parse(modulesResult.stdout);
 
-        try {
-            const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
-            modulesOut = modulesResult.stdout;
-        } catch {
-            modulesOut = '[]';
-        }
-
-        const parsed: { name: string; version: string }[] = JSON.parse(pipOut);
-        const importedModules: string[] = JSON.parse(modulesOut);
         const locationType = detectLocationType(pythonPath);
 
-        const initialPkgInfo: PyPackageInfo[] = parsed.map(pkg => ({
-            name: pkg.name,
-            version: pkg.version,
-            latestVersion: undefined,
-            libpath: '',
-            locationtype: locationType,
-            title: pkg.name,
-            loaded: importedModules.includes(getImportName(pkg.name))
-        }));
+        const pkgInfo: PyPackageInfo[] = parsed.map(pkg => {
+            const importName = getImportName(pkg.name);
+            const isLoaded = importedModules.includes(importName);
 
-        sidebarProvider.refresh(initialPkgInfo);
+            return {
+                name: pkg.name,
+                version: pkg.version,
+                latestVersion: undefined,  // 🔥 We don't check outdated here yet
+                libpath: '',
+                locationtype: locationType,
+                title: pkg.name,
+                loaded: isLoaded
+            };
+        });
 
-        // Background: Refresh outdated info
-        execPromise(`"${pythonPath}" -m pip list --outdated --format json`).then((outdatedResult) => {
+        sidebarProvider.refresh(pkgInfo);
+
+    } catch (err) {
+        console.error(err);
+        vscode.window.showErrorMessage('❌ Failed to refresh installed packages.');
+        sidebarProvider.refresh([]);
+    }
+}
+
+// 🌟 New function: Fetch outdated packages manually
+export async function refreshOutdatedPackages(sidebarProvider: SidebarProvider): Promise<void> {
+    const pythonPath = await getPythonInterpreter();
+    if (!pythonPath) {
+        return;
+    }
+
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Checking for outdated packages...",
+            cancellable: false
+        }, async () => {
+            const outdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
             const outdatedParsed: { name: string; latest_version: string }[] = JSON.parse(outdatedResult.stdout);
+
             const outdatedMap = new Map<string, string>();
             outdatedParsed.forEach(pkg => {
                 outdatedMap.set(pkg.name, pkg.latest_version);
             });
 
-            const updatedPkgInfo: PyPackageInfo[] = initialPkgInfo.map(pkg => ({
+            const updatedPkgInfo = sidebarProvider.getPackages().map(pkg => ({
                 ...pkg,
                 latestVersion: outdatedMap.get(pkg.name)
             }));
 
             sidebarProvider.refresh(updatedPkgInfo);
-        }).catch((err) => {
-            console.warn('⚠️ Failed to fetch outdated packages:', err);
         });
-
     } catch (err) {
-        console.error('❌ Unexpected error in refreshPackages:', err);
-        sidebarProvider.refresh([]);
+        console.error(err);
+        vscode.window.showWarningMessage('⚠️ Failed to fetch outdated package info.');
     }
 }
+
 
