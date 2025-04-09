@@ -85,6 +85,33 @@ export async function uninstallPackage(item: PyPackageItem | undefined, sidebarP
     }
 }
 
-export async function updatePackages(sidebarProvider: SidebarProvider): Promise<void> {
-    // Optional: leave empty if you want no update handling anymore
+export async function updatePackages(item: PyPackageItem | undefined, sidebarProvider: SidebarProvider): Promise<void> {
+    if (!item) {
+        vscode.window.showInformationMessage('No package selected to update.');
+        return;
+    }
+
+    const pythonExtension = vscode.extensions.getExtension('ms-python.python');
+    if (!pythonExtension) {
+        vscode.window.showErrorMessage('⚠️ Python extension not found.');
+        return;
+    }
+
+    if (!pythonExtension.isActive) {
+        await pythonExtension.activate();
+    }
+
+    const pythonExec = pythonExtension.exports.settings.getExecutionDetails().execCommand?.[0];
+    if (!pythonExec) {
+        vscode.window.showErrorMessage('⚠️ No active Python interpreter found.');
+        return;
+    }
+
+    try {
+        await execFilePromise(pythonExec, ['-m', 'pip', 'install', '--upgrade', item.pkg.name]);
+        vscode.window.showInformationMessage(`✅ Updated ${item.pkg.name}`);
+        await refreshPackages(sidebarProvider);
+    } catch (err: any) {
+        vscode.window.showErrorMessage(`❌ Failed to update ${item.pkg.name}: ${err.message}`);
+    }
 }

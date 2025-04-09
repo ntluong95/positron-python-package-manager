@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -119,6 +119,11 @@
           "command": "positron-python-package-manager.uninstallPackage",
           "when": "view == pythonPackageView && viewItem == PyPackage",
           "group": "inline@999"
+        },
+        {
+          "command": "positron-python-package-manager.updatePackage",
+          "when": "view == pythonPackageView && viewItem == canUpdate",
+          "group": "inline"
         }
       ]
     }
