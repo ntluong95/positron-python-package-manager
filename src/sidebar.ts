@@ -103,7 +103,7 @@ export class PyPackageItem extends vscode.TreeItem {
             : currentVersion;
 
         this.description = `${versionText} (${pkg.locationtype})`; // ✅ Restore locationtype here
-        this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
+        // this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
 
         this.contextValue = latestVersion && latestVersion !== currentVersion
             ? 'canUpdate'

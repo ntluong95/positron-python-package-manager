@@ -86,7 +86,7 @@
       "positron-python-packages": [
         {
           "id": "pythonPackageView",
-          "name": "Installed Packages",
+          "name": "Package Manager",
           "icon": "resources/dep.svg"
         }
       ]

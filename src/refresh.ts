@@ -57,25 +57,25 @@ async function getPythonInterpreter(): Promise<string | undefined> {
 }
 
 // Helper: parse `pip show` output
-function parsePipShow(output: string): Map<string, { location: string; summary: string }> {
-    const infoMap = new Map<string, { location: string; summary: string }>();
-    const blocks = output.split(/\n(?=Name: )/);
+// function parsePipShow(output: string): Map<string, { location: string; summary: string }> {
+//     const infoMap = new Map<string, { location: string; summary: string }>();
+//     const blocks = output.split(/\n(?=Name: )/);
 
-    for (const block of blocks) {
-        const nameMatch = block.match(/^Name:\s*(.+)$/m);
-        const locationMatch = block.match(/^Location:\s*(.+)$/m);
-        const summaryMatch = block.match(/^Summary:\s*(.+)$/m);
+//     for (const block of blocks) {
+//         const nameMatch = block.match(/^Name:\s*(.+)$/m);
+//         const locationMatch = block.match(/^Location:\s*(.+)$/m);
+//         const summaryMatch = block.match(/^Summary:\s*(.+)$/m);
 
-        if (nameMatch) {
-            const name = nameMatch[1];
-            const location = locationMatch ? locationMatch[1] : '';
-            const summary = summaryMatch ? summaryMatch[1] : '';
-            infoMap.set(name, { location, summary });
-        }
-    }
+//         if (nameMatch) {
+//             const name = nameMatch[1];
+//             const location = locationMatch ? locationMatch[1] : '';
+//             const summary = summaryMatch ? summaryMatch[1] : '';
+//             infoMap.set(name, { location, summary });
+//         }
+//     }
 
-    return infoMap;
-}
+//     return infoMap;
+// }
 
 // Main function: Refresh packages
 export async function refreshPackages(sidebarProvider: SidebarProvider): Promise<void> {
