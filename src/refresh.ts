@@ -87,75 +87,61 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
             return;
         }
 
-        let pipListOut = '';
-        let pipOutdatedOut = '';
-        let pipShowOut = '';
+        let pipOut = '';
+        let outdatedOut = '';
         let modulesOut = '';
 
         try {
-            // 1. List all packages
-            const pipListResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
-            pipListOut = pipListResult.stdout;
+            const pipResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
+            pipOut = pipResult.stdout;
 
-            // 2. List outdated
-            const pipOutdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
-            pipOutdatedOut = pipOutdatedResult.stdout;
-
-            // 3. List loaded modules
-            const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
-            modulesOut = modulesResult.stdout;
+            const outdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
+            outdatedOut = outdatedResult.stdout;
         } catch (err) {
-            vscode.window.showErrorMessage(`❌ Failed to fetch installed or outdated packages: ${(err as Error).message}`);
+            vscode.window.showErrorMessage(`❌ Failed to run pip list: ${(err as Error).message}`);
             console.error(err);
             sidebarProvider.refresh([]);
             return;
         }
 
-        const parsedList: { name: string; version: string }[] = JSON.parse(pipListOut);
-        const parsedOutdated: { name: string; version: string; latest_version: string }[] = pipOutdatedOut ? JSON.parse(pipOutdatedOut) : [];
-        const importedModules: string[] = JSON.parse(modulesOut);
+        try {
+            const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
+            modulesOut = modulesResult.stdout;
+        } catch (err) {
+            vscode.window.showWarningMessage('⚠️ Could not fetch currently loaded modules.');
+            modulesOut = '[]';
+        }
 
-        if (parsedList.length === 0) {
+        if (!pipOut.trim()) {
             vscode.window.showInformationMessage('✅ No Python packages installed.');
             sidebarProvider.refresh([]);
             return;
         }
 
-        // Collect all package names
-        const packageNames = parsedList.map(pkg => pkg.name);
+        const parsed: { name: string; version: string }[] = JSON.parse(pipOut);
+        const outdatedParsed: { name: string; version: string; latest_version: string }[] = outdatedOut ? JSON.parse(outdatedOut) : [];
 
-        try {
-            // 4. Batch pip show all packages (FAST)
-            const pipShowResult = await execPromise(`"${pythonPath}" -m pip show ${packageNames.join(' ')}`);
-            pipShowOut = pipShowResult.stdout;
-        } catch (err) {
-            vscode.window.showWarningMessage(`⚠️ Failed to fetch package metadata.`);
-            pipShowOut = '';
-        }
-
-        const pipShowInfo = pipShowOut ? parsePipShow(pipShowOut) : new Map();
+        const importedModules: string[] = JSON.parse(modulesOut);
 
         const outdatedMap = new Map<string, string>();
-        parsedOutdated.forEach(pkg => {
+        outdatedParsed.forEach(pkg => {
             outdatedMap.set(pkg.name, pkg.latest_version);
         });
 
         const locationType = detectLocationType(pythonPath);
 
-        const pkgInfo: PyPackageInfo[] = parsedList.map(pkg => {
+        const pkgInfo: PyPackageInfo[] = parsed.map(pkg => {
             const importName = getImportName(pkg.name);
             const isLoaded = importedModules.includes(importName);
-
-            const showInfo = pipShowInfo.get(pkg.name);
 
             return {
                 name: pkg.name,
                 version: pkg.version,
-                latestVersion: outdatedMap.get(pkg.name),
-                libpath: showInfo?.location || '',
+                latestVersion: outdatedMap.get(pkg.name),   // ✅ latest version
+                libpath: '',
                 locationtype: locationType,
-                title: showInfo?.summary || pkg.name,  // fallback to package name if no summary
-                loaded: isLoaded,
+                title: pkg.name,
+                loaded: isLoaded
             };
         });
 
@@ -167,3 +153,4 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         sidebarProvider.refresh([]);
     }
 }
+
