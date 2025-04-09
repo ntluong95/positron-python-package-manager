@@ -2,6 +2,8 @@
 
 Manage your Python extensions from within [Positron](https://positron.posit.co/) — the RStudio-style package manager for the modern data science IDE.
 
+![](resources/screenshot.png)
+
 ---
 
 ## 🚀 Features
