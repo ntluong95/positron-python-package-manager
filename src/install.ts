@@ -11,12 +11,9 @@ import { promisify } from 'util';
 
 const execFilePromise = promisify(execFile);
 
-/**
- * Just trigger the Python Envs built-in command to view installed packages.
- */
 export async function installPackages(sidebarProvider: SidebarProvider): Promise<void> {
     try {
-        const resource = vscode.workspace.workspaceFolders?.[0]?.uri; // optional: workspace-specific
+        const resource = vscode.workspace.workspaceFolders?.[0]?.uri; 
         await vscode.commands.executeCommand('python-envs.packages', resource);
     } catch (err) {
         console.error(err);
@@ -24,10 +21,7 @@ export async function installPackages(sidebarProvider: SidebarProvider): Promise
     }
 }
 
-/**
- * You can still leave uninstallPackage and updatePackages normally if you want,
- * or also remove them if everything should be delegated to MS Python extension!
- */
+
 export async function uninstallPackage(item: PyPackageItem | undefined, sidebarProvider: SidebarProvider): Promise<void> {
     if (!item) {
         const all = sidebarProvider.getPackages?.();

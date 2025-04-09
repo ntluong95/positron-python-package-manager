@@ -85,7 +85,7 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
             return {
                 name: pkg.name,
                 version: pkg.version,
-                latestVersion: undefined,  // 🔥 We don't check outdated here yet
+                latestVersion: undefined,  
                 libpath: '',
                 locationtype: locationType,
                 title: pkg.name,

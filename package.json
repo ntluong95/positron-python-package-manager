@@ -50,7 +50,7 @@
       {
         "command": "positron-python-package-manager.installPackages",
         "title": "%install.packages%",
-        "icon": "$(arrow-circle-down)"
+        "icon": "$(desktop-download)"
       },
       {
         "command": "positron-python-package-manager.uninstallPackage",
