@@ -3,6 +3,7 @@ import * as positron from 'positron';
 import { filter } from 'fuzzaldrin-plus';
 import { refreshPackages } from './refresh';
 import { getImportName } from './utils'; 
+import * as path from 'path'; 
 
 export interface PyPackageInfo {
     name: string;
@@ -67,6 +68,8 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
 
         const importName = getImportName(item.pkg.name);
 
+        //TODO A default option is to load the whole package, but we can write an extension option to allow users define custom imports
+        //TODO Provide an easier UX by right click on import statement -> add to list of common imports
         const code = isNowChecked
             ? `import ${importName}`
             : `# Unloading modules at runtime is unsafe.`; 
@@ -110,6 +113,15 @@ export class PyPackageItem extends vscode.TreeItem {
             : 'PyPackage';
 
         // this.iconPath = new vscode.ThemeIcon('circle-outline');
+
+        this.iconPath = {
+            light: vscode.Uri.file(
+                path.join(__dirname, '..', 'resources', 'python_logo.svg')
+            ),
+            dark: vscode.Uri.file(
+                path.join(__dirname, '..', 'resources', 'python_logo.svg')
+            ),
+        };
 
         this.checkboxState = pkg.loaded
             ? vscode.TreeItemCheckboxState.Checked

@@ -11,13 +11,72 @@ import { promisify } from 'util';
 
 const execFilePromise = promisify(execFile);
 
+// TODO: Provide two options to install package, either using python-envs.packages or pip install
 export async function installPackages(sidebarProvider: SidebarProvider): Promise<void> {
+    const pythonEnvCommand = vscode.commands.getCommands(true)
+        .then(commands => commands.includes('python-envs.packages'));
+
+    if (await pythonEnvCommand) {
+        // ✅ Use Positron's Python Environment panel if available
+        const resource = vscode.workspace.workspaceFolders?.[0]?.uri;
+        try {
+            await vscode.commands.executeCommand('python-envs.packages', resource);
+            return;
+        } catch (err) {
+            console.error(err);
+            vscode.window.showErrorMessage('❌ Failed to open installed packages list.');
+        }
+    }
+
+    // ❌ Command not available or failed → Fallback to custom install
+    await customInstallPackages(sidebarProvider);
+}
+
+// In-house fallback for pip install
+async function customInstallPackages(sidebarProvider: SidebarProvider): Promise<void> {
+    const packageName = await vscode.window.showInputBox({
+        title: 'Install Python Packages',
+        prompt: 'Enter package name(s) to install (separate multiple with space)',
+        placeHolder: 'e.g., numpy pandas requests',
+        ignoreFocusOut: true
+    });
+
+    if (!packageName?.trim()) {
+        return; // User cancelled
+    }
+
+    const pythonExtension = vscode.extensions.getExtension('ms-python.python');
+    if (!pythonExtension) {
+        vscode.window.showErrorMessage('Python extension not found.');
+        return;
+    }
+
+    if (!pythonExtension.isActive) {
+        await pythonExtension.activate();
+    }
+
+    const pythonExec = pythonExtension.exports.settings.getExecutionDetails().execCommand?.[0];
+    if (!pythonExec) {
+        vscode.window.showErrorMessage('No active Python interpreter found.');
+        return;
+    }
+
+    const packages = packageName.trim().split(/\s+/);
+
     try {
-        const resource = vscode.workspace.workspaceFolders?.[0]?.uri; 
-        await vscode.commands.executeCommand('python-envs.packages', resource);
-    } catch (err) {
-        console.error(err);
-        vscode.window.showErrorMessage('❌ Failed to open installed packages list.');
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Installing ${packages.length > 1 ? 'packages' : 'package'}...`,
+            cancellable: false
+        }, async () => {
+            await execFilePromise(pythonExec, ['-m', 'pip', 'install', ...packages]);
+        });
+
+        vscode.window.showInformationMessage(`✅ Successfully installed: ${packages.join(', ')}`);
+        await refreshPackages(sidebarProvider);
+
+    } catch (err: any) {
+        vscode.window.showErrorMessage(`❌ Failed to install package(s): ${err.message}`);
     }
 }
 

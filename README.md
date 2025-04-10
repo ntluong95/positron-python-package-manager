@@ -21,6 +21,7 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 - `pip` must be installed in the Python runtime (used for data exchange).
 - Python installed and working inside Positron
 - This extension must run in the **workspace** (remote/WSL/container supported ✅)
+- [`Python Environments`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-python-envs) extension from Microsoft (recommended)
 
 ---
 
@@ -33,7 +34,8 @@ This extension currently has no user-facing settings — it's fully automatic.
 
 ## ⚠️ Known Issues
 
-- Unable to check the box to attach/detach the package. Importing python package usually requires to be declared explicitly
+- Checked box to show loaded packages does not persist in view
+- Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
 - Clicking on package's name doesn't show its documentation in Help pane due to the different in package name and module imported. For example, the package name is pyjanitor but it is imported as `import janitor`
 
 ---
@@ -48,7 +50,7 @@ Licensed under the [MIT License](./LICENSE)
 ## 💡 Future Ideas
 
 - [ ] Update package to a specific version
-- [ ] Display package description
+- [ ] Show tooltips for loaded packages, to know the alias name
 
 ---
 

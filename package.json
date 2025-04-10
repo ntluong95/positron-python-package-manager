@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -77,7 +77,7 @@
       "activitybar": [
         {
           "id": "positron-python-packages",
-          "title": "Python",
+          "title": "%packages%",
           "icon": "resources/dep.svg"
         }
       ]
@@ -86,7 +86,7 @@
       "positron-python-packages": [
         {
           "id": "pythonPackageView",
-          "name": "Package Manager",
+          "name": "Python",
           "icon": "resources/dep.svg"
         }
       ]
