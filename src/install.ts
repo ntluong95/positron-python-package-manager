@@ -12,6 +12,7 @@ import { promisify } from 'util';
 const execFilePromise = promisify(execFile);
 
 // TODO: Provide two options to install package, either using python-envs.packages or pip install
+// TODO: If install with UV for virtual environment, may need to first initialize the .venv first then run uv add packagename
 export async function installPackages(sidebarProvider: SidebarProvider): Promise<void> {
     const pythonEnvCommand = vscode.commands.getCommands(true)
         .then(commands => commands.includes('python-envs.packages'));

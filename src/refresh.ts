@@ -78,9 +78,15 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
 
         const locationType = detectLocationType(pythonPath);
 
+        const currentState = new Map<string, boolean>(); // Allows us to keep track of previously loaded modules
+        sidebarProvider.getPackages().forEach(pkg => {
+            currentState.set(pkg.name, pkg.loaded);
+        });
+
         const pkgInfo: PyPackageInfo[] = parsed.map(pkg => {
             const importName = getImportName(pkg.name);
-            const isLoaded = importedModules.includes(importName);
+            const runtimeLoaded = importedModules.includes(importName);
+            const loaded = currentState.has(pkg.name) ? currentState.get(pkg.name)! : runtimeLoaded;
 
             return {
                 name: pkg.name,
@@ -89,7 +95,7 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
                 libpath: '',
                 locationtype: locationType,
                 title: pkg.name,
-                loaded: isLoaded
+                loaded: loaded
             };
         });
 
