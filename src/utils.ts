@@ -6,7 +6,7 @@ export function stripAnsi(text: string): string {
 
 export function getFilterRedundant(): boolean {
     const config = vscode.workspace.getConfiguration(
-        'positron-r-package-manager',
+        'positron-python-package-manager',
         vscode.Uri.file(vscode.workspace.workspaceFolders?.[0].uri.fsPath ?? "")
     );
     return config.get<boolean>('filterOutdatedIfUpToDateElsewhere', true);
