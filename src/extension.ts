@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as positron from 'positron';
 
-import { refreshPackages, refreshOutdatedPackages } from './refresh';
+import { refreshPackages } from './refresh';
+import { refreshOutdatedPackages } from './update';
 import { SidebarProvider, PyPackageItem } from './sidebar';
 import { installPackages, uninstallPackage, updatePackages } from './install';
 import { getChangeForegroundEvent, getRegisterRuntimeEvent } from './events';
@@ -17,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     // ✅ Initialize sidebar immediately
-    sidebarProvider.refresh([]);
+    // sidebarProvider.refresh([]);
 
     console.log('Positron Python Package Manager extension activated!');
 

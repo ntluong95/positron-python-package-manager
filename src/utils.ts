@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 
 export function stripAnsi(text: string): string {
     return text.replace(/\x1b\[[0-9;]*m/g, '');
@@ -47,4 +48,22 @@ export function getImportName(packageName: string): string {
     };
 
     return mappings[packageName] || packageName;
+}
+
+export async function waitForFile(filePath: string, timeout = 1000): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+
+        const interval = setInterval(() => {
+            if (fs.existsSync(filePath)) {
+                clearInterval(interval);
+                resolve();
+            } else if (Date.now() - start > timeout) {
+                clearInterval(interval);
+                const error = new Error(vscode.l10n.t("Timeout waiting for file: {0}", filePath));
+                vscode.window.showErrorMessage(error.message);
+                reject(error);
+            }
+        }, 100);
+    });
 }

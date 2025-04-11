@@ -1,10 +1,15 @@
+// src/refresh.ts
 import * as vscode from 'vscode';
+import * as positron from 'positron';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { SidebarProvider, PyPackageInfo } from './sidebar';
-import { getImportName } from './utils';
+import { getImportName, waitForFile } from './utils';
 
-const execPromise = promisify(exec);
+export const execPromise = promisify(exec);
 
 interface PythonExtensionApi {
     ready: Promise<void>;
@@ -13,7 +18,16 @@ interface PythonExtensionApi {
     };
 }
 
-// Helper: detect VirtualEnv, Conda, or Global
+interface ImportedPackageInfo {
+    module: string;
+    alias: string | null;
+    members: string[];
+}
+
+/**
+ * Detects the type of Python installation (VirtualEnv, Conda, or Global)
+ * based on the provided pythonPath.
+ */
 function detectLocationType(pythonPath: string): string {
     const pathLower = pythonPath.toLowerCase();
     if (pathLower.includes('venv') || pathLower.includes('.venv') || pathLower.includes('env')) {
@@ -25,8 +39,10 @@ function detectLocationType(pythonPath: string): string {
     return 'Global';
 }
 
-// Helper: Get Python interpreter path
-async function getPythonInterpreter(): Promise<string | undefined> {
+/**
+ * Retrieves the active Python interpreter command using the MS Python extension.
+ */
+export async function getPythonInterpreter(): Promise<string | undefined> {
     const pythonExtension = vscode.extensions.getExtension<PythonExtensionApi>('ms-python.python');
     if (!pythonExtension) {
         vscode.window.showWarningMessage('Python extension not found.');
@@ -37,109 +53,150 @@ async function getPythonInterpreter(): Promise<string | undefined> {
     }
     await pythonExtension.exports.ready;
     const execCommand = pythonExtension.exports.settings.getExecutionDetails()?.execCommand;
-    return execCommand?.join(' ');
+    // const pythonPath = execCommand?.join(' ');
+    const pythonPath = execCommand?.[0];
+    console.log("Detected Python interpreter:", pythonPath);
+    return pythonPath;
 }
 
-// Helper: parse `pip show` output
-// function parsePipShow(output: string): Map<string, { location: string; summary: string }> {
-//     const infoMap = new Map<string, { location: string; summary: string }>();
-//     const blocks = output.split(/\n(?=Name: )/);
+/**
+ * Executes a Python snippet in interactive mode to get the list of imported packages.
+ *
+ * The executed Python code is:
+ *   from module_inspector import extract_imported_packages
+ *   print(extract_imported_packages(as_json=True))
+ *
+ * Returns the parsed JSON output.
+ */
+async function getImportedPackages(): Promise<ImportedPackageInfo[]> {
+    const code = `from module_inspector import extract_imported_packages; extract_imported_packages(as_json=True)`.trim();
+    try {
+        const output = await positron.runtime.executeCode(
+            'python',
+            code,
+            true,
+            undefined,
+            positron.RuntimeCodeExecutionMode.Interactive
+        );
 
-//     for (const block of blocks) {
-//         const nameMatch = block.match(/^Name:\s*(.+)$/m);
-//         const locationMatch = block.match(/^Location:\s*(.+)$/m);
-//         const summaryMatch = block.match(/^Summary:\s*(.+)$/m);
+        console.log("Output from interactive package query (raw):", output);
 
-//         if (nameMatch) {
-//             const name = nameMatch[1];
-//             const location = locationMatch ? locationMatch[1] : '';
-//             const summary = summaryMatch ? summaryMatch[1] : '';
-//             infoMap.set(name, { location, summary });
-//         }
-//     }
+        let outputStr: string | undefined;
 
-//     return infoMap;
-// }
+        if (typeof output === "string") {
+            outputStr = output;
+        } else if (output && typeof output["text/plain"] === "string") {
+            outputStr = output["text/plain"];
+        } else {
+            outputStr = JSON.stringify(output);
+        }
 
-// 🌟 Main function: Only installed packages
+        // Now outputStr is something like: "'[ ... ]'"
+        if (outputStr.startsWith("'") && outputStr.endsWith("'")) {
+            outputStr = outputStr.slice(1, -1); // Strip the outer single quotes
+        }
+
+        const parsed = JSON.parse(outputStr);
+
+        if (!Array.isArray(parsed)) {
+            console.warn("⚠️ Imported packages result is not an array:", parsed);
+            return [];
+        }
+
+        console.log("✅ Imported packages parsed correctly:", parsed);
+        return parsed;
+    } catch (error) {
+        vscode.window.showErrorMessage("Failed to query imported packages: " + error);
+        console.error("Error in getImportedPackages:", error);
+        return [];
+    }
+}
+
+
+/**
+ * Refreshes the list of installed packages.
+ *
+ * 1. Obtains the active Python interpreter command.
+ * 2. Runs pip (in a separate process) to get all installed packages.
+ * 3. Queries the interactive session for the list of imported packages.
+ * 4. Updates the package "loaded" state and refreshes the SidebarProvider.
+ */
 export async function refreshPackages(sidebarProvider: SidebarProvider): Promise<void> {
     try {
         const pythonPath = await getPythonInterpreter();
         if (!pythonPath) {
             sidebarProvider.refresh([]);
-            return;
+            throw new Error("No Python interpreter found");
         }
 
-        const pipResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
-        const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
-
+        // 1. Get installed packages
+        const pipCmd = `"${pythonPath}" -m pip list --format json`;
+        console.log("Executing:", pipCmd);
+        const pipResult = await execPromise(pipCmd);
+        console.log("pip list output:", pipResult.stdout);
         const parsed: { name: string; version: string }[] = JSON.parse(pipResult.stdout);
-        const importedModules: string[] = JSON.parse(modulesResult.stdout);
+
+        // 2. Get imported packages (now structured)
+        const importedPackages: ImportedPackageInfo[] = await getImportedPackages();
+
+        
 
         const locationType = detectLocationType(pythonPath);
 
-        const currentState = new Map<string, boolean>(); // Allows us to keep track of previously loaded modules
+        const currentState = new Map<string, boolean>();
         sidebarProvider.getPackages().forEach(pkg => {
             currentState.set(pkg.name, pkg.loaded);
         });
 
         const pkgInfo: PyPackageInfo[] = parsed.map(pkg => {
             const importName = getImportName(pkg.name);
-            const runtimeLoaded = importedModules.includes(importName);
-            const loaded = currentState.has(pkg.name) ? currentState.get(pkg.name)! : runtimeLoaded;
 
+            const matchingImport = importedPackages.find(info => 
+                info.module === importName ||
+                info.alias === importName ||
+                info.module === pkg.name ||
+                info.alias === pkg.name
+            );
+        
+            const loaded = matchingImport !== undefined;
+        
             return {
                 name: pkg.name,
                 version: pkg.version,
-                latestVersion: undefined,  
+                latestVersion: undefined,
                 libpath: '',
                 locationtype: locationType,
                 title: pkg.name,
-                loaded: loaded
-            };
-        });
+                loaded: loaded,
+                tooltip: matchingImport
+                ? matchingImport.alias
+                    ? `Module Imported as ${matchingImport.alias}`
+                    : matchingImport.members?.length
+                        // show only 5 sub-modules only
+                        ? `Sub-modules: ${matchingImport.members.slice(0, 5).join(', ')}${matchingImport.members.length > 5 ? ', ...' : ''}`
+                        : `Module Imported`
+                : pkg.name
+        };
+    });
+        
 
+        console.log("Final package info:", pkgInfo);
         sidebarProvider.refresh(pkgInfo);
 
     } catch (err) {
-        console.error(err);
+        console.error("Error in refreshPackages:", err);
         vscode.window.showErrorMessage('❌ Failed to refresh installed packages.');
         sidebarProvider.refresh([]);
     }
 }
 
-// 🌟 New function: Fetch outdated packages manually
-export async function refreshOutdatedPackages(sidebarProvider: SidebarProvider): Promise<void> {
-    const pythonPath = await getPythonInterpreter();
-    if (!pythonPath) {
-        return;
-    }
 
-    try {
-        await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: "Checking for outdated packages...",
-            cancellable: false
-        }, async () => {
-            const outdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
-            const outdatedParsed: { name: string; latest_version: string }[] = JSON.parse(outdatedResult.stdout);
-
-            const outdatedMap = new Map<string, string>();
-            outdatedParsed.forEach(pkg => {
-                outdatedMap.set(pkg.name, pkg.latest_version);
-            });
-
-            const updatedPkgInfo = sidebarProvider.getPackages().map(pkg => ({
-                ...pkg,
-                latestVersion: outdatedMap.get(pkg.name)
-            }));
-
-            sidebarProvider.refresh(updatedPkgInfo);
-        });
-    } catch (err) {
-        console.error(err);
-        vscode.window.showWarningMessage('⚠️ Failed to fetch outdated package info.');
-    }
+/**
+ * Registers the refresh command.
+ */
+export function registerRefreshCommand(sidebarProvider: SidebarProvider) {
+    return vscode.commands.registerCommand("positron-python-package-manager.refreshImported", async () => {
+        await refreshPackages(sidebarProvider);
+        vscode.window.showInformationMessage("Imported packages refreshed.");
+    });
 }
-
-

@@ -3,7 +3,7 @@ import * as positron from 'positron';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { refreshPackages } from './refresh';
+import { refreshPackages, getPythonInterpreter } from './refresh';
 import { PyPackageItem, SidebarProvider } from './sidebar';
 import { stripAnsi, getFilterRedundant } from './utils';
 import { execFile } from 'child_process';
