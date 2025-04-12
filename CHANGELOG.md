@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.4
+
+- Provides quick-fix actions to install missing packages
+
 ## 0.0.3
 
 - Fixed refresh packages printing results into console

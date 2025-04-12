@@ -4,16 +4,19 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 
 ![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/screenshot.png)
 
+![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/inline-installing.png)
+
 ---
 
 ## 🚀 Features
 
-- ✅ View all **installed Python packages** in a tidy sidebar
-- ✅ View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
-- ✅ **Install** packages directly from pane
-- ✅ **Uninstall** packages with a single click
+- ✅ 🔍 View all **installed Python packages** in a tidy sidebar
+- ✅ 🔍 View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
+- ✅ 💡 Provides quick-fix actions to install missing packages
+- ✅ 🚀 **Install** packages directly from pane
+- ✅ 🚀 **Uninstall** packages with a single click
 - ✅ 🔍 **Search** by name or title (fuzzy search supported)
-- ✅ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
+- ✅ ⚙️ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
 
 ---
 
@@ -52,6 +55,7 @@ Licensed under the [MIT License](./LICENSE)
 
 - [ ] Update package to a specific version
 - [ ] Provide an option to install with UV in virtual environment
+- [ ] Identify Unused Packages: Scan your project to find Python packages that are not used in your codebase.
 ---
 
 ## 🧠 Why Positron?

@@ -2,13 +2,13 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
     "url": "https://github.com/ntluong95/positron-python-package-manager.git"
   },
-  "icon": "resources/icon.png",
+  "icon": "resources/icon1.png",
   "license": "MIT",
   "extensionKind": [
     "workspace"
@@ -30,9 +30,13 @@
     "uninstall",
     "update",
     "PyPI",
+    "pip",
+    "package manager",
     "search"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:python"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
@@ -43,10 +47,24 @@
           "scope": "machine-overridable",
           "default": true,
           "description": "%filterOutdatedIfUpToDateElsewhere%"
+        },
+        "inlinePythonPackageInstaller.autoInstall": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically install missing Python modules without prompting."
+        },
+        "inlinePythonPackageInstaller.customPipCommand": {
+          "type": "string",
+          "default": "pip install",
+          "description": "Custom pip command to use for installing modules."
         }
       }
     },
     "commands": [
+      {
+        "command": "extension.installModule",
+        "title": "Install Missing Python Module"
+      },
       {
         "command": "positron-python-package-manager.installPackages",
         "title": "%install.packages%",
