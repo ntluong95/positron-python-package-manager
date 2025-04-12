@@ -6,16 +6,9 @@ import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { SidebarProvider, PyPackageInfo } from './sidebar';
-import { getObserver, getImportName, _installPythonPackage } from './utils';
+import { getObserver, getImportName, _installPythonPackage, getPythonInterpreter } from './utils';
 
 export const execPromise = promisify(exec);
-
-interface PythonExtensionApi {
-  ready: Promise<void>;
-  settings: {
-    getExecutionDetails(resource?: any): { execCommand: string[] | undefined };
-  };
-}
 
 export interface ImportedPackageInfo {
   module: string;
@@ -23,24 +16,6 @@ export interface ImportedPackageInfo {
   members: string[];
 }
 
-/**
- * Gets Python interpreter from VSCode extension.
- */
-export async function getPythonInterpreter(): Promise<string | undefined> {
-  const pythonExtension = vscode.extensions.getExtension<PythonExtensionApi>('ms-python.python');
-  if (!pythonExtension) {
-    vscode.window.showWarningMessage('Python extension not found.');
-    return undefined;
-  }
-  if (!pythonExtension.isActive) {
-    await pythonExtension.activate();
-  }
-  await pythonExtension.exports.ready;
-  const execCommand = pythonExtension.exports.settings.getExecutionDetails()?.execCommand;
-  const pythonPath = execCommand?.[0];
-  console.log('Detected Python interpreter:', pythonPath);
-  return pythonPath;
-}
 
 /**
  * Checks if module_inspector is installed.
@@ -146,6 +121,7 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
     const locationType = pythonPath.toLowerCase().includes('venv') ? 'VirtualEnv' : pythonPath.toLowerCase().includes('conda') ? 'Conda' : 'Global';
 
     const pkgInfo: PyPackageInfo[] = pipPackages.map(pkg => {
+      //TODO Important to map mismatches package name
       const importName = getImportName(pkg.name);
       const matchingImport = importedPackages.find(info =>
         info.module === importName || info.alias === importName

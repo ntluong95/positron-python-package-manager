@@ -6,18 +6,6 @@ import { promisify } from 'util';
 
 export const execPromise = promisify(exec);
 
-export function stripAnsi(text: string): string {
-    return text.replace(/\x1b\[[0-9;]*m/g, '');
-}
-
-export function getFilterRedundant(): boolean {
-    const config = vscode.workspace.getConfiguration(
-        'positron-python-package-manager',
-        vscode.Uri.file(vscode.workspace.workspaceFolders?.[0].uri.fsPath ?? "")
-    );
-    return config.get<boolean>('filterOutdatedIfUpToDateElsewhere', true);
-}
-
 export function getObserver(prefixMessage: string) {
     return (error: any) => {
       const message = error instanceof Error ? error.message : String(error);
@@ -50,20 +38,33 @@ export async function _installPythonPackage(packageName: string): Promise<void> 
     }
 }
 
-export async function getPythonInterpreter(): Promise<string | undefined> {
-    const pythonExtension = vscode.extensions.getExtension<any>('ms-python.python');
-    if (!pythonExtension) {
-      vscode.window.showWarningMessage('Python extension not found.');
-      return undefined;
-    }
-    if (!pythonExtension.isActive) {
-      await pythonExtension.activate();
-    }
-    const executionDetails = pythonExtension.exports.settings.getExecutionDetails();
-    const pythonPath = executionDetails?.execCommand?.[0];
-    console.log('Detected Python interpreter:', pythonPath);
-    return pythonPath;
+/**
+ * Gets Python interpreter from VSCode extension.
+ */
+
+interface PythonExtensionApi {
+  ready: Promise<void>;
+  settings: {
+    getExecutionDetails(resource?: any): { execCommand: string[] | undefined };
+  };
 }
+
+export async function getPythonInterpreter(): Promise<string | undefined> {
+  const pythonExtension = vscode.extensions.getExtension<PythonExtensionApi>('ms-python.python');
+  if (!pythonExtension) {
+    vscode.window.showWarningMessage('Python extension not found.');
+    return undefined;
+  }
+  if (!pythonExtension.isActive) {
+    await pythonExtension.activate();
+  }
+  await pythonExtension.exports.ready;
+  const execCommand = pythonExtension.exports.settings.getExecutionDetails()?.execCommand;
+  const pythonPath = execCommand?.[0];
+  console.log('Detected Python interpreter:', pythonPath);
+  return pythonPath;
+}
+
 
 export function getImportName(packageName: string): string {
     //TODO: WIP 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SidebarProvider, PyPackageItem } from './sidebar';
-import { getPythonInterpreter, execPromise } from './refresh';
+import { execPromise } from './refresh';
+import { getPythonInterpreter } from './utils';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

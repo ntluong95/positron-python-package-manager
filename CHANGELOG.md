@@ -2,7 +2,8 @@
 
 ## 0.0.2
 
-- Improve the display of loaded packages
+- Loaded packages are now display correctecly, along with tooltips
+- Prompt user to install `module-inspector` package to retrieve runtime's namespaces
 
 ## 0.0.1
 
