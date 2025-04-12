@@ -1,139 +1,141 @@
 import * as vscode from 'vscode';
+import * as positron from 'positron';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { SidebarProvider, PyPackageInfo } from './sidebar';
-import { getImportName } from './utils';
+import { getObserver, getImportName, _installPythonPackage, getPythonInterpreter } from './utils';
 
-const execPromise = promisify(exec);
+export const execPromise = promisify(exec);
 
-interface PythonExtensionApi {
-    ready: Promise<void>;
-    settings: {
-        getExecutionDetails(resource?: any): { execCommand: string[] | undefined };
-    };
+export interface ImportedPackageInfo {
+  module: string;
+  alias: string | null;
+  members: string[];
 }
 
-// Helper: detect VirtualEnv, Conda, or Global
-function detectLocationType(pythonPath: string): string {
-    const pathLower = pythonPath.toLowerCase();
-    if (pathLower.includes('venv') || pathLower.includes('.venv') || pathLower.includes('env')) {
-        return 'VirtualEnv';
-    }
-    if (pathLower.includes('conda')) {
-        return 'Conda';
-    }
-    return 'Global';
-}
-
-// Helper: Get Python interpreter path
-async function getPythonInterpreter(): Promise<string | undefined> {
-    const pythonExtension = vscode.extensions.getExtension<PythonExtensionApi>('ms-python.python');
-    if (!pythonExtension) {
-        vscode.window.showWarningMessage('Python extension not found.');
-        return undefined;
-    }
-    if (!pythonExtension.isActive) {
-        await pythonExtension.activate();
-    }
-    await pythonExtension.exports.ready;
-    const execCommand = pythonExtension.exports.settings.getExecutionDetails()?.execCommand;
-    return execCommand?.join(' ');
-}
-
-// Helper: parse `pip show` output
-// function parsePipShow(output: string): Map<string, { location: string; summary: string }> {
-//     const infoMap = new Map<string, { location: string; summary: string }>();
-//     const blocks = output.split(/\n(?=Name: )/);
-
-//     for (const block of blocks) {
-//         const nameMatch = block.match(/^Name:\s*(.+)$/m);
-//         const locationMatch = block.match(/^Location:\s*(.+)$/m);
-//         const summaryMatch = block.match(/^Summary:\s*(.+)$/m);
-
-//         if (nameMatch) {
-//             const name = nameMatch[1];
-//             const location = locationMatch ? locationMatch[1] : '';
-//             const summary = summaryMatch ? summaryMatch[1] : '';
-//             infoMap.set(name, { location, summary });
-//         }
-//     }
-
-//     return infoMap;
-// }
-
-// 🌟 Main function: Only installed packages
 export async function refreshPackages(sidebarProvider: SidebarProvider): Promise<void> {
+  const observer = getObserver('Error refreshing packages: {0}');
+  
+  async function getImportedPackages(): Promise<ImportedPackageInfo[]> {
+    const code = `__import__("module_inspector").extract_imported_packages(as_json=True)`;
     try {
-        const pythonPath = await getPythonInterpreter();
-        if (!pythonPath) {
-            sidebarProvider.refresh([]);
-            return;
-        }
+      const output = await positron.runtime.executeCode(
+        'python',
+        code,
+        false,
+        undefined,
+        positron.RuntimeCodeExecutionMode.Interactive // <-- Silent Mode here
+      );
 
-        const pipResult = await execPromise(`"${pythonPath}" -m pip list --format json`);
-        const modulesResult = await execPromise(`"${pythonPath}" -c "import sys, json; print(json.dumps(list(sys.modules.keys())))"`);
+      let outputStr: string | undefined;
+      if (typeof output === 'string') {
+        outputStr = output;
+      } else if (output && typeof output["text/plain"] === 'string') {
+        outputStr = output["text/plain"];
+      } else {
+        outputStr = JSON.stringify(output);
+      }
 
-        const parsed: { name: string; version: string }[] = JSON.parse(pipResult.stdout);
-        const importedModules: string[] = JSON.parse(modulesResult.stdout);
+      if (outputStr.startsWith("'") && outputStr.endsWith("'")) {
+        outputStr = outputStr.slice(1, -1);
+      }
 
-        const locationType = detectLocationType(pythonPath);
+      const parsed = JSON.parse(outputStr);
 
-        const pkgInfo: PyPackageInfo[] = parsed.map(pkg => {
-            const importName = getImportName(pkg.name);
-            const isLoaded = importedModules.includes(importName);
+      if (!Array.isArray(parsed)) {
+        console.warn('Imported packages result is not an array.');
+        return [];
+      }
 
-            return {
-                name: pkg.name,
-                version: pkg.version,
-                latestVersion: undefined,  
-                libpath: '',
-                locationtype: locationType,
-                title: pkg.name,
-                loaded: isLoaded
-            };
-        });
-
-        sidebarProvider.refresh(pkgInfo);
-
-    } catch (err) {
-        console.error(err);
-        vscode.window.showErrorMessage('❌ Failed to refresh installed packages.');
-        sidebarProvider.refresh([]);
+      return parsed;
+    } catch (error) {
+      console.error('Failed to get imported packages:', error);
+      throw error;
     }
-}
+  }
 
-// 🌟 New function: Fetch outdated packages manually
-export async function refreshOutdatedPackages(sidebarProvider: SidebarProvider): Promise<void> {
+  try {
     const pythonPath = await getPythonInterpreter();
     if (!pythonPath) {
+      sidebarProvider.refresh([]);
+      throw new Error('No Python interpreter found.');
+    }
+
+    // 1. Get pip list first
+    const pipCmd = `"${pythonPath}" -m pip list --format json`;
+    const pipResult = await execPromise(pipCmd);
+    const pipPackages: { name: string; version: string }[] = JSON.parse(pipResult.stdout);
+
+    // 2. Check if module_inspector is installed
+    const isModuleInspectorInstalled = pipPackages.some(pkg => pkg.name.toLowerCase() === 'module-inspector');
+    if (!isModuleInspectorInstalled) {
+      const install = await vscode.window.showWarningMessage(
+        "The 'module_inspector' package is missing. Would you like to install it now?",
+        "Install"
+      );
+      if (install === 'Install') {
+        await _installPythonPackage('module-inspector');
+      } else {
+        vscode.window.showWarningMessage('Skipping imported package detection.');
+        sidebarProvider.refresh([]);
         return;
+      }
     }
 
-    try {
-        await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: "Checking for outdated packages...",
-            cancellable: false
-        }, async () => {
-            const outdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
-            const outdatedParsed: { name: string; latest_version: string }[] = JSON.parse(outdatedResult.stdout);
+    // 3. Get imported packages
+    const importedPackages = await getImportedPackages();
 
-            const outdatedMap = new Map<string, string>();
-            outdatedParsed.forEach(pkg => {
-                outdatedMap.set(pkg.name, pkg.latest_version);
-            });
+    // 4. Build sidebar model
+    const locationType = pythonPath.toLowerCase().includes('venv')
+      ? 'VirtualEnv'
+      : pythonPath.toLowerCase().includes('conda')
+        ? 'Conda'
+        : 'Global';
 
-            const updatedPkgInfo = sidebarProvider.getPackages().map(pkg => ({
-                ...pkg,
-                latestVersion: outdatedMap.get(pkg.name)
-            }));
+    const pkgInfo: PyPackageInfo[] = pipPackages.map(pkg => {
+      //TODO Important to map mismatches package name
+      const importName = getImportName(pkg.name);
+      const matchingImport = importedPackages.find(info =>
+        info.module === importName || info.alias === importName
+      );
+      const loaded = matchingImport !== undefined;
 
-            sidebarProvider.refresh(updatedPkgInfo);
-        });
-    } catch (err) {
-        console.error(err);
-        vscode.window.showWarningMessage('⚠️ Failed to fetch outdated package info.');
-    }
+      return {
+        name: pkg.name,
+        version: pkg.version,
+        latestVersion: undefined,
+        libpath: '',
+        locationtype: locationType,
+        title: pkg.name,
+        loaded: loaded,
+        tooltip: matchingImport
+          ? matchingImport.alias
+            ? `Module imported as ${matchingImport.alias}`
+            : matchingImport.members?.length
+              ? `Sub-modules imported: ${matchingImport.members.slice(0, 5).join(', ')}${matchingImport.members.length > 5 ? ', ...' : ''}`
+              : 'Module imported'
+          : pkg.name
+      };
+    });
+
+    sidebarProvider.refresh(pkgInfo);
+    console.log('Refreshed package sidebar.');
+  } catch (error) {
+    vscode.window.showErrorMessage('Failed to refresh installed packages.');
+    sidebarProvider.refresh([]);
+    console.error('Error refreshing packages:', error);
+  }
 }
 
-
+/**
+ * Register refresh command.
+ */
+export function registerRefreshCommand(sidebarProvider: SidebarProvider) {
+  return vscode.commands.registerCommand('positron-python-package-manager.refreshImported', async () => {
+    await refreshPackages(sidebarProvider);
+    vscode.window.showInformationMessage('Imported packages refreshed.');
+  });
+}

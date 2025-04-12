@@ -13,6 +13,7 @@ export interface PyPackageInfo {
     locationtype: string;
     title: string;
     loaded: boolean;
+    tooltip?: string;
 }
 
 export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
@@ -72,7 +73,7 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
         //TODO Provide an easier UX by right click on import statement -> add to list of common imports
         const code = isNowChecked
             ? `import ${importName}`
-            : `# Unloading modules at runtime is unsafe.`; 
+            : `del ${importName}`; 
 
         positron.runtime.executeCode('python', code, true, undefined, positron.RuntimeCodeExecutionMode.Interactive)
             .then(() => {
@@ -94,6 +95,7 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
     }
 }
 
+// The UI how it looks
 export class PyPackageItem extends vscode.TreeItem {
     constructor(public pkg: PyPackageInfo) {
         super(pkg.name, vscode.TreeItemCollapsibleState.None);
@@ -126,6 +128,8 @@ export class PyPackageItem extends vscode.TreeItem {
         this.checkboxState = pkg.loaded
             ? vscode.TreeItemCheckboxState.Checked
             : vscode.TreeItemCheckboxState.Unchecked;
+
+        this.tooltip = pkg.tooltip ?? pkg.title;
 
         this.command = {
             command: 'positron-python-package-manager.openHelp',
