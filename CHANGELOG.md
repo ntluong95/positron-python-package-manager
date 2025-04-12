@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.3
+
+- Fixed refresh packages printing results into console
+
 ## 0.0.2
 
 - Loaded packages are now display correctecly, along with tooltips

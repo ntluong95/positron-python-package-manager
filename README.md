@@ -51,7 +51,6 @@ Licensed under the [MIT License](./LICENSE)
 ## 💡 Future Ideas
 
 - [ ] Update package to a specific version
-- [ ] Show tooltips for loaded packages, to know the alias name
 - [ ] Provide an option to install with UV in virtual environment
 ---
 

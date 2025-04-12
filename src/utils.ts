@@ -11,7 +11,7 @@ export function getObserver(prefixMessage: string) {
       const message = error instanceof Error ? error.message : String(error);
       vscode.window.showErrorMessage(prefixMessage.replace('{0}', message));
     };
-  }
+}
 
 export async function _installPythonPackage(packageName: string): Promise<void> {
     const pythonPath = await getPythonInterpreter();
@@ -101,4 +101,22 @@ export function getImportName(packageName: string): string {
     };
 
     return mappings[packageName] || packageName;
+}
+
+export async function waitForFile(filePath: string, timeout = 1000): Promise<void> {
+  return new Promise((resolve, reject) => {
+      const start = Date.now();
+
+      const interval = setInterval(() => {
+          if (fs.existsSync(filePath)) {
+              clearInterval(interval);
+              resolve();
+          } else if (Date.now() - start > timeout) {
+              clearInterval(interval);
+              const error = new Error(vscode.l10n.t("Timeout waiting for file: {0}", filePath));
+              vscode.window.showErrorMessage(error.message);
+              reject(error);
+          }
+      }, 100);
+  });
 }
