@@ -23,7 +23,9 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
     const tmpPath = path.join(os.tmpdir(), `imported_packages_${Date.now()}.json`);
     const pyTmpPath = tmpPath.replace(/\\/g, '/');
     // const code = `__import__("module_inspector").extract_imported_packages(as_json=True)`;
-    const code = `import json,module_inspector;f=open("${pyTmpPath}","w");json.dump(module_inspector.extract_imported_packages(as_json=True),f);f.close()`;
+    // const code = `import json,module_inspector;f=open("${pyTmpPath}","w");json.dump(module_inspector.extract_imported_packages(as_json=True),f);f.close()`;
+    const code = `(lambda f: (__import__('json').dump(__import__('module_inspector').extract_imported_packages(as_json=True), f), f.close()))(open("${pyTmpPath}", "w"))`;
+
 
     try {
       await positron.runtime.executeCode(
