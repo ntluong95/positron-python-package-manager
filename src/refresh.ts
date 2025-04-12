@@ -6,7 +6,7 @@ import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { SidebarProvider, PyPackageInfo } from './sidebar';
-import { getObserver, getImportName, _installPythonPackage, getPythonInterpreter } from './utils';
+import { getObserver, getImportName, _installPythonPackage, getPythonInterpreter, waitForFile } from './utils';
 
 export const execPromise = promisify(exec);
 
@@ -18,41 +18,42 @@ export interface ImportedPackageInfo {
 
 export async function refreshPackages(sidebarProvider: SidebarProvider): Promise<void> {
   const observer = getObserver('Error refreshing packages: {0}');
-  
+
   async function getImportedPackages(): Promise<ImportedPackageInfo[]> {
-    const code = `__import__("module_inspector").extract_imported_packages(as_json=True)`;
+    const tmpPath = path.join(os.tmpdir(), `imported_packages_${Date.now()}.json`);
+    const pyTmpPath = tmpPath.replace(/\\/g, '/');
+    // const code = `__import__("module_inspector").extract_imported_packages(as_json=True)`;
+    const code = `import json,module_inspector;f=open("${pyTmpPath}","w");json.dump(module_inspector.extract_imported_packages(as_json=True),f);f.close()`;
+
     try {
-      const output = await positron.runtime.executeCode(
+      await positron.runtime.executeCode(
         'python',
         code,
         false,
         undefined,
-        positron.RuntimeCodeExecutionMode.Interactive // <-- Silent Mode here
+        positron.RuntimeCodeExecutionMode.Silent
       );
-
-      let outputStr: string | undefined;
-      if (typeof output === 'string') {
-        outputStr = output;
-      } else if (output && typeof output["text/plain"] === 'string') {
-        outputStr = output["text/plain"];
-      } else {
-        outputStr = JSON.stringify(output);
+      
+      await waitForFile(tmpPath);
+      const contents = fs.readFileSync(tmpPath, 'utf-8');
+    
+      let parsed: any;
+      try {
+        parsed = JSON.parse(contents);
+      } catch (err) {
+        console.error('Failed to parse JSON contents:', err);
+        parsed = []; // fallback
       }
-
-      if (outputStr.startsWith("'") && outputStr.endsWith("'")) {
-        outputStr = outputStr.slice(1, -1);
-      }
-
-      const parsed = JSON.parse(outputStr);
-
+    
+      // Force parsed into array
       if (!Array.isArray(parsed)) {
-        console.warn('Imported packages result is not an array.');
-        return [];
+        parsed = [parsed];
       }
-
-      return parsed;
+    
+      console.log('Parsed Imported Packages:', parsed);
+      const parsed1 = JSON.parse(parsed);
+      return parsed1;
     } catch (error) {
-      console.error('Failed to get imported packages:', error);
       throw error;
     }
   }
