@@ -9,9 +9,11 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 ## 🚀 Features
 
 - ✅ View all **installed Python packages** in a tidy sidebar
+- ✅ View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
 - ✅ **Install** packages directly from pane
 - ✅ **Uninstall** packages with a single click
 - ✅ 🔍 **Search** by name or title (fuzzy search supported)
+- ✅ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
 
 ---
 
@@ -34,8 +36,7 @@ This extension currently has no user-facing settings — it's fully automatic.
 
 ## ⚠️ Known Issues
 
-- Checked box to show loaded packages does not persist in view
-- Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
+- Refresh package view will print the commmand and result into console
 - Clicking on package's name doesn't show its documentation in Help pane due to the different in package name and module imported. For example, the package name is pyjanitor but it is imported as `import janitor`
 
 ---
