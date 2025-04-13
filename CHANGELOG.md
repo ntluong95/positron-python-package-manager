@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.8
+
+- Add new decoration in `pyprojects.toml` and `requirements.txt` file
+
 ## 0.0.7
 
 - Add more supports for uv

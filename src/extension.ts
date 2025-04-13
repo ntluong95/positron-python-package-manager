@@ -15,8 +15,34 @@ import { buildEnv, installPackagesUV, writeRequirements, removeEnv } from "./uv/
 import { createEnvIcon, installPackagesIcon, writeEnvIcon, deleteEnvIcon } from "./uv/statusBarItems";
 import { registerCommands } from './uv/commands';
 import { registerPackageManager } from './uv/packageManager';
+import { initializeDecoration } from './decorations';
+import { addVersionComparisonDecorations } from './packageManager';
 
 export function activate(context: vscode.ExtensionContext) {
+
+    initializeDecoration();
+    registerCommands(context);
+
+    context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(async (document) => {
+            const enableDecorations = vscode.workspace.getConfiguration('positronPythonPackageManager').get('enableVersionDecorations', true);
+            if (enableDecorations && ['pip-requirements', 'toml'].includes(document.languageId)) {
+                await addVersionComparisonDecorations(document);
+            }
+        }),
+        vscode.workspace.onDidChangeTextDocument(async (event) => {
+            const enableDecorations = vscode.workspace.getConfiguration('positronPythonPackageManager').get('enableVersionDecorations', true);
+            if (enableDecorations && ['pip-requirements', 'toml'].includes(event.document.languageId)) {
+                await addVersionComparisonDecorations(event.document);
+            }
+        }),
+        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+            const enableDecorations = vscode.workspace.getConfiguration('positronPythonPackageManager').get('enableVersionDecorations', true);
+            if (enableDecorations && editor && ['pip-requirements', 'toml'].includes(editor.document.languageId)) {
+                await addVersionComparisonDecorations(editor.document);
+            }
+        })
+    );
     // --------------------------------------------------------------------------
     // Inline Missing Module Installer Setup
     // --------------------------------------------------------------------------
