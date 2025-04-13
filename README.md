@@ -16,6 +16,7 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 - ✅ 🔍 View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
 - ✅ 🔍 Explore metadata of **Python packages** defined in `pyprojects.toml` and `requirements.txt` file
 - ✅ 💡 Provides quick-fix actions to install missing packages
+- ✅ 💡 Right click on `pyproject.toml` file to manage the virtual environment
 - ✅ 🚀 **Create** virtual environment and **Install** packages directly from `pyprojects.toml` and `requirements.txt` file with uv
 - ✅ 🚀 **Install** packages directly from pane
 - ✅ 🚀 **Uninstall** packages with a single click
@@ -59,7 +60,6 @@ Licensed under the [MIT License](./LICENSE)
 
 - [ ] Update package to a specific version
 - [ ] Provide multiple way to install packages from .whl, .tar.gz file
-- [ ] Provide an option to install with UV in virtual environment
 ---
 
 ## 🧠 Why Positron?
