@@ -11,6 +11,8 @@ import { getImportName, getPythonInterpreter, PyPI } from './utils';
 import dayjs from 'dayjs'
 import { ProjectNameRequirement } from 'pip-requirements-js'
 import { RequirementsParser } from './parser'
+import { buildEnv, installPackagesUV, writeRequirements, removeEnv } from "./uv/commands";
+import { createEnvIcon, installPackagesIcon, writeEnvIcon, deleteEnvIcon } from "./uv/statusBarItems";
 
 export function activate(context: vscode.ExtensionContext) {
     // --------------------------------------------------------------------------
@@ -184,6 +186,36 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerHoverProvider('pip-requirements', hoverProvider)
     vscode.languages.registerCodeLensProvider('toml', codeLensProvider)
     vscode.languages.registerHoverProvider('toml', hoverProvider)
+
+    // --------------------------------------------------------------------------
+    // uv support - Manage uv dependencies
+    // --------------------------------------------------------------------------
+
+    console.log('Congratulations, your extension "uv Wingman" is now active!');
+
+    const listener = (editor: vscode.TextEditor | undefined): void => {
+        console.log("Active window changed", editor);
+
+        createEnvIcon.displayDefault();
+        installPackagesIcon.displayDefault();
+        writeEnvIcon.displayDefault();
+        deleteEnvIcon.displayDefault();
+    };
+
+    const fileChangeSubscription = vscode.window.onDidChangeActiveTextEditor(listener);
+
+    const buildCommand = vscode.commands.registerCommand("uv-wingman.buildEnvironment", buildEnv);
+    const installPackagesCommand = vscode.commands.registerCommand("uv-wingman.installPackagesUV", installPackagesUV);
+    const writeCommand = vscode.commands.registerCommand("uv-wingman.writeRequirementsFile", writeRequirements);
+    const deleteCommand = vscode.commands.registerCommand("uv-wingman.deleteEnvironment", removeEnv);
+
+    context.subscriptions.push(
+        fileChangeSubscription,
+        buildCommand,
+        installPackagesCommand,
+        writeCommand,
+        deleteCommand
+    );
 }
 
 
@@ -333,4 +365,5 @@ export class PyPICodeLensProvider implements vscode.CodeLensProvider<PyPICodeLen
 export function deactivate() {
     requirementsParser.clear()
     pypi.clear()
+    console.log('Extension "uv Wingman" has been deactivated.');
 }

@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.6
+
+- Help users manage and interact with the python UV package manager
+- FIX `pip` module missing in `.venv`
+
 ## 0.0.5
 
 - View latest versions of dependencies in `pyprojects.toml` and `requirements.txt` file
