@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.7
+
+- Add more supports for uv
+
 ## 0.0.6
 
 - Help users manage and interact with the python UV package manager
