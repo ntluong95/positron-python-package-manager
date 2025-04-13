@@ -268,7 +268,7 @@
       },
       {
         "command": "uv.add",
-        "title": "UV: Add Package to Project",
+        "title": "PPM: Add Package to Project",
         "category": "UV"
       }
     ],
