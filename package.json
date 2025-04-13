@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -29,6 +29,8 @@
     "install",
     "uninstall",
     "update",
+    "UV",
+    "dependencies",
     "PyPI",
     "pip",
     "package manager",
@@ -37,7 +39,8 @@
   "activationEvents": [
     "onLanguage:python",
     "onLanguage:pip-requirements",
-    "onLanguage:toml"
+    "onLanguage:toml",
+    "onLanguage:plaintext"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -70,7 +73,8 @@
     "commands": [
       {
         "command": "extension.installModule",
-        "title": "Install Missing Python Module"
+        "title": "PPM: Install Missing Python Module",
+        "icon": "$(desktop-download)"
       },
       {
         "command": "positron-python-package-manager.installPackages",
@@ -88,14 +92,24 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "positron-python-package-manager.checkOutdatedPackages",
-        "title": "Check Outdated Packages",
-        "icon": "$(arrow-circle-up)"
+        "command": "uv-wingman.buildEnvironment",
+        "title": "PPM: Build Environment from opened file",
+        "category": "UV"
       },
       {
-        "command": "positron-python-package-manager.searchPackages",
-        "title": "%search.packages%",
-        "icon": "$(search)"
+        "command": "uv-wingman.installPackagesUV",
+        "title": "PPM: install packages from opened file",
+        "category": "UV"
+      },
+      {
+        "command": "uv-wingman.writeRequirementsFile",
+        "title": "PPM: Write a requirements.txt file from the active environment",
+        "category": "UV"
+      },
+      {
+        "command": "uv-wingman.deleteEnvironment",
+        "title": "PPM: Delete Environment",
+        "category": "UV"
       }
     ],
     "viewsContainers": {
@@ -179,8 +193,10 @@
     "husky": "^7.0.4",
     "jest": "^29.0.3",
     "lint-staged": "^13.2.1",
+    "mocha": "^10.8.2",
     "prettier": "^2.5.1",
     "rimraf": "^4.0.0",
+    "sinon": "^19.0.2",
     "ts-jest": "^29.1.2",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",

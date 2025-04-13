@@ -69,8 +69,39 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
 
     // 1. Get pip list first
     const pipCmd = `"${pythonPath}" -m pip list --format json`;
-    const pipResult = await execPromise(pipCmd);
-    const pipPackages: { name: string; version: string }[] = JSON.parse(pipResult.stdout);
+    let pipPackagesRaw: string;
+    try {
+      const pipResult = await execPromise(pipCmd);
+      pipPackagesRaw = pipResult.stdout;
+    } catch (err: any) {
+      // Check for missing pip error
+      if (err.toString().includes("No module named pip")) {
+        const choice = await vscode.window.showErrorMessage(
+          "The current Python interpreter does not have pip installed. Would you like to install pip using ensurepip?",
+          "Install pip"
+        );
+        if (choice === "Install pip") {
+          try {
+            await execPromise(`"${pythonPath}" -m ensurepip`);
+            vscode.window.showInformationMessage("pip installed successfully. Please try refreshing again.");
+            // Optionally, you can call refreshPackages again here
+            return refreshPackages(sidebarProvider);
+          } catch (ensureErr) {
+            vscode.window.showErrorMessage("Failed to install pip using ensurepip.");
+            sidebarProvider.refresh([]);
+            throw ensureErr;
+          }
+        } else {
+          vscode.window.showWarningMessage("Skipping package refresh since pip is missing.");
+          sidebarProvider.refresh([]);
+          return;
+        }
+      } else {
+        throw err;
+      }
+    }
+
+    const pipPackages: { name: string; version: string }[] = JSON.parse(pipPackagesRaw);
 
     // 2. Check if module_inspector is installed
     const isModuleInspectorInstalled = pipPackages.some(pkg => pkg.name.toLowerCase() === 'module-inspector');

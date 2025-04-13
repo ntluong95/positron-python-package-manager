@@ -14,7 +14,9 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 
 - ✅ 🔍 View all **installed Python packages** in a tidy sidebar
 - ✅ 🔍 View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
+- ✅ 🔍 Explore metadata of **Python packages** defined in `pyprojects.toml` and `requirements.txt` file
 - ✅ 💡 Provides quick-fix actions to install missing packages
+- ✅ 🚀 **Create** virtual environment and **Install** packages directly from `pyprojects.toml` and `requirements.txt` file with uv
 - ✅ 🚀 **Install** packages directly from pane
 - ✅ 🚀 **Uninstall** packages with a single click
 - ✅ 🔍 **Search** by name or title (fuzzy search supported)
@@ -25,10 +27,10 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 ## 🛠 Requirements
 
 - Positron version `2025.04.0-250` or later
-- `pip` must be installed in the Python runtime (used for data exchange).
+- `uv` if you want to manage v
+- `pip` and `module-inspector` must be installed in the Python runtime.
 - Python installed and working inside Positron
 - This extension must run in the **workspace** (remote/WSL/container supported ✅)
-- [`Python Environments`](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-python-envs) extension from Microsoft (recommended)
 
 ---
 
