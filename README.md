@@ -14,6 +14,7 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 
 - ✅ 🔍 View all **installed Python packages** in a tidy sidebar
 - ✅ 🔍 View all **loaded Python packages**. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
+- ✅ 🔍 Explore metadata of **Python packages** defined in `pyprojects.toml` and `requirements.txt` file
 - ✅ 💡 Provides quick-fix actions to install missing packages
 - ✅ 🚀 **Install** packages directly from pane
 - ✅ 🚀 **Uninstall** packages with a single click
