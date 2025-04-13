@@ -38,7 +38,7 @@ async function customInstallPackages(sidebarProvider: SidebarProvider): Promise<
     const packageName = await vscode.window.showInputBox({
         title: 'Install Python Packages',
         prompt: 'Enter package name(s) to install (separate multiple with space)',
-        placeHolder: 'e.g., numpy pandas requests',
+        placeHolder: 'e.g., numpy pandas, or "loaded" for loaded packages',
         ignoreFocusOut: true
     });
 

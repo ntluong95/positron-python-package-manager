@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.9
+
+- Improve the display of tooltips
+- Add extension configuration settings
+
 ## 0.0.8
 
 - Add new decoration in `pyprojects.toml` and `requirements.txt` file

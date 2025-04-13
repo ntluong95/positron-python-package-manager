@@ -174,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
             const input = await vscode.window.showInputBox({
                 prompt: vscode.l10n.t('Search Python packages — press Esc to clear filter, Enter to apply'),
                 value: sidebarProvider.getFilter(),
-                placeHolder: vscode.l10n.t('e.g. numpy, pandas'),
+                placeHolder: vscode.l10n.t('e.g. numpy, pandas, or "loaded" for loaded packages'),
             });
             sidebarProvider.setFilter(input ?? '');
         }),
