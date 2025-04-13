@@ -129,7 +129,20 @@ export class PyPackageItem extends vscode.TreeItem {
             ? vscode.TreeItemCheckboxState.Checked
             : vscode.TreeItemCheckboxState.Unchecked;
 
-        this.tooltip = pkg.tooltip ?? pkg.title;
+        // this.tooltip = pkg.tooltip ?? pkg.title;
+        const tooltipContent = new vscode.MarkdownString();
+        tooltipContent.appendMarkdown(`${pkg.name} v${pkg.version}\n`);
+        tooltipContent.appendMarkdown(`Location: ${pkg.locationtype}\n\n`);
+        tooltipContent.appendMarkdown(`${pkg.tooltip ?? ''}\n\n`);
+        tooltipContent.appendMarkdown(`[View on PyPI](https://pypi.org/project/${pkg.name}/)\n`);
+
+        if (pkg.loaded) {
+            const importName = getImportName(pkg.name);
+            tooltipContent.appendMarkdown(`\nImported as: ${importName === pkg.name ? `[${pkg.name}]` : importName}`);
+        }
+
+        this.tooltip = tooltipContent;
+        this.tooltip.isTrusted = true;
 
         this.command = {
             command: 'positron-python-package-manager.openHelp',
