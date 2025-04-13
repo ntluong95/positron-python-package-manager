@@ -110,6 +110,86 @@
         "command": "uv-wingman.deleteEnvironment",
         "title": "PPM: Delete Environment",
         "category": "UV"
+      },
+      {
+        "command": "uv.init",
+        "title": "PPM: Initialize Project",
+        "category": "UV"
+      },
+      {
+        "command": "uv.sync",
+        "title": "PPM: Sync Dependencies",
+        "category": "UV"
+      },
+      {
+        "command": "uv.upgrade",
+        "title": "PPM: Upgrade Packages",
+        "category": "UV"
+      },
+      {
+        "command": "uv.cache.clean",
+        "title": "PPM: Clean Cache",
+        "category": "UV"
+      },
+      {
+        "command": "uv.removePackage",
+        "title": "PPM: Remove Package from pyproject.toml",
+        "category": "UV"
+      },
+      {
+        "command": "uv.searchPackage",
+        "title": "PPM: Search Package on PyPI",
+        "category": "UV"
+      },
+      {
+        "command": "uv.generateLock",
+        "title": "PPM: Generate Lock File",
+        "category": "UV"
+      },
+      {
+        "command": "uv.upgradeDependencies",
+        "title": "PPM: Upgrade Dependencies",
+        "category": "UV"
+      },
+      {
+        "command": "uv.manageVirtualEnv",
+        "title": "PPM: Create Virtual Environment",
+        "category": "UV"
+      },
+      {
+        "command": "uv.runScript",
+        "title": "PPM: Run Python Script",
+        "category": "UV"
+      },
+      {
+        "command": "uv.addScriptDependency",
+        "title": "PPM: Add Script Dependency",
+        "category": "UV"
+      },
+      {
+        "command": "uv.installPython",
+        "title": "PPM: Install Python Version",
+        "category": "UV"
+      },
+      {
+        "command": "uv.pinPython",
+        "title": "PPM: Pin Python Version",
+        "category": "UV"
+      },
+      {
+        "command": "uv.installTool",
+        "title": "PPM: Install Tool",
+        "category": "UV"
+      },
+      {
+        "command": "uv.runTool",
+        "title": "PPM: Run Tool with UVX",
+        "category": "UV"
+      },
+      {
+        "command": "uv.add",
+        "title": "PPM: Add Package to Project",
+        "category": "UV"
       }
     ],
     "viewsContainers": {
