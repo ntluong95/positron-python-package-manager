@@ -93,7 +93,7 @@
       },
       {
         "command": "positron-python-package-manager.checkOutdatedPackages",
-        "title": "Check Outdated Packages",
+        "title": "PPM: Check Outdated Packages",
         "icon": "$(arrow-circle-up)"
       },
       {
