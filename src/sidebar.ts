@@ -32,8 +32,13 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
         return element;
     }
 
+    private filterLoadedPackages(packages: PyPackageInfo[]): PyPackageInfo[] {
+        return packages.filter(pkg => pkg.loaded);
+    }
+
     getChildren(): Thenable<PyPackageItem[]> {
-        let filtered = this.packages;
+        let filtered: PyPackageInfo[] = this.packages;
+
 
         if (this.filterText.trim()) {
             const enriched = this.packages.map(pkg => ({
@@ -41,11 +46,15 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
                 query: `${pkg.name} ${pkg.title}`
             }));
 
-            const matches = filter(enriched, this.filterText.trim(), {
-                key: 'query'
-            });
+            if (this.filterText.trim() === 'loaded') {
+                filtered = this.filterLoadedPackages(this.packages);
+            } else {
+                const matches = filter(enriched, this.filterText.trim(), {
+                    key: 'query'
+                });
 
-            filtered = matches.map(m => m.pkg);
+                filtered = matches.map(m => m.pkg);
+            }
         }
 
         if (filtered.length === 0) {
@@ -103,20 +112,30 @@ export class PyPackageItem extends vscode.TreeItem {
         const currentVersion = pkg.version;
         const latestVersion = pkg.latestVersion;
 
-        const versionText = latestVersion && latestVersion !== currentVersion
-            ? `${currentVersion} → ${latestVersion}` // shows version update
-            : currentVersion;
+        let versionText = `${currentVersion}`;
+        if (latestVersion && latestVersion !== currentVersion) {
+            versionText = `${currentVersion} ⭡ ${latestVersion}`;
+        }
 
-        this.description = `${versionText} (${pkg.locationtype})`; 
-        // this.tooltip = `${pkg.title}\n(${pkg.libpath})`;
+        this.description = `${versionText} (${pkg.locationtype})`;
 
         this.contextValue = latestVersion && latestVersion !== currentVersion
             ? 'canUpdate'
             : 'PyPackage';
 
-        // this.iconPath = new vscode.ThemeIcon('circle-outline');
-
-        this.iconPath = {
+        if (latestVersion && latestVersion !== currentVersion) {
+            this.iconPath = new vscode.ThemeIcon('arrow-up');
+        } else if (pkg.loaded) {
+            this.iconPath = {
+                light: vscode.Uri.file(
+                    path.join(__dirname, '..', 'resources', 'python_loaded.svg')
+                ),
+                dark: vscode.Uri.file(
+                    path.join(__dirname, '..', 'resources', 'python_loaded.svg')
+                ),
+            };
+        } else {
+            this.iconPath = {
             light: vscode.Uri.file(
                 path.join(__dirname, '..', 'resources', 'python_logo.svg')
             ),
@@ -124,12 +143,26 @@ export class PyPackageItem extends vscode.TreeItem {
                 path.join(__dirname, '..', 'resources', 'python_logo.svg')
             ),
         };
-
+        }
+        
         this.checkboxState = pkg.loaded
             ? vscode.TreeItemCheckboxState.Checked
             : vscode.TreeItemCheckboxState.Unchecked;
 
-        this.tooltip = pkg.tooltip ?? pkg.title;
+        // this.tooltip = pkg.tooltip ?? pkg.title;
+        const tooltipContent = new vscode.MarkdownString();
+        tooltipContent.appendMarkdown(`${pkg.name} v${pkg.version}\n`);
+        tooltipContent.appendMarkdown(`Location: ${pkg.locationtype}\n\n`);
+        tooltipContent.appendMarkdown(`${pkg.tooltip ?? ''}\n\n`);
+        tooltipContent.appendMarkdown(`[View on PyPI](https://pypi.org/project/${pkg.name}/)\n`);
+
+        if (pkg.loaded) {
+            const importName = getImportName(pkg.name);
+            tooltipContent.appendMarkdown(`\nImported as: ${importName === pkg.name ? `[${pkg.name}]` : importName}`);
+        }
+
+        this.tooltip = tooltipContent;
+        this.tooltip.isTrusted = true;
 
         this.command = {
             command: 'positron-python-package-manager.openHelp',
