@@ -7,16 +7,16 @@ export let upToDateDecorationType: vscode.TextEditorDecorationType;
 export function initializeDecoration() {
     outdatedDecorationType = vscode.window.createTextEditorDecorationType({
         after: {
-            margin: '0 0 0 1em',
-            color: '#e06c75',
+            margin: '0 0 0 2em',
+            color: 'rgb(224 108 117 / 50%)',
             fontStyle: 'italic',
         },
     });
 
     upToDateDecorationType = vscode.window.createTextEditorDecorationType({
         after: {
-            margin: '0 0 0 1em',
-            color: '#22c893',
+            margin: '0 0 0 2em',
+            color: 'rgb(34 200 147 / 50%)',
             fontStyle: 'italic',
         },
     });
