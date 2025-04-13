@@ -6,6 +6,8 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 
 ![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/inline-installing.png)
 
+![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/pyproject.png)
+
 ---
 
 ## 🚀 Features
@@ -54,8 +56,8 @@ Licensed under the [MIT License](./LICENSE)
 ## 💡 Future Ideas
 
 - [ ] Update package to a specific version
+- [ ] Provide multiple way to install packages from .whl, .tar.gz file
 - [ ] Provide an option to install with UV in virtual environment
-- [ ] Identify Unused Packages: Scan your project to find Python packages that are not used in your codebase.
 ---
 
 ## 🧠 Why Positron?

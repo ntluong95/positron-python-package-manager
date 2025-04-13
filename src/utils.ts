@@ -3,6 +3,16 @@ import * as positron from 'positron';
 import * as fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { PackageMetadata } from './extension'
+import { ProjectNameRequirement } from 'pip-requirements-js';
+// import wretch from 'wretch';
+// import { WretchError } from 'wretch/resolver';
+// import fetch, { FormData } from 'node-fetch'
+
+const wretch = require('wretch');
+const { WretchError } = require('wretch/resolver');
+
+wretch.polyfills({ fetch, FormData })
 
 export const execPromise = promisify(exec);
 
@@ -119,4 +129,43 @@ export async function waitForFile(filePath: string, timeout = 1000): Promise<voi
           }
       }, 100);
   });
+}
+
+/** Fetching package metadata with a caching layer. */
+export const outputChannel = vscode.window.createOutputChannel('Positron Python Package Manager');
+
+export class PyPI {
+  constructor(public cache: Map<string, () => Promise<PackageMetadata>> = new Map()) {}
+
+  public async fetchPackageMetadata(requirement: ProjectNameRequirement): Promise<PackageMetadata> {
+      if (!this.cache.has(requirement.name)) {
+          this.cache.set(requirement.name, async () => {
+              let metadata: PackageMetadata
+              try {
+                  metadata = await wretch(`https://pypi.org/pypi/${requirement.name}/json`).get().json()
+              } catch (err: unknown) {
+                const e = err as any;
+                  if (e instanceof WretchError) {
+                      switch (e.status) {
+                          case 404:
+                              throw new Error(`Package not found in PyPI`)
+                          default:
+                              throw new Error(`Unexpected ${e.status} response from PyPI: ${e.json}`)
+                      }
+                  }
+                  this.cache.delete(requirement.name)
+                  outputChannel.appendLine(
+                      `Error fetching package metadata for ${requirement.name} - ${(e as Error).stack || e}`
+                  )
+                  throw new Error('Cannot connect to PyPI')
+              }
+              return metadata
+          })
+      }
+      return await this.cache.get(requirement.name)!()
+  }
+
+  public clear() {
+      this.cache.clear()
+  }
 }

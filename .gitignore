@@ -5,3 +5,4 @@ node_modules
 *.vsix
 DESCRIPTION
 positron_fetch.py
+TODO.md

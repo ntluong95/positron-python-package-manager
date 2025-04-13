@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -35,7 +35,9 @@
     "search"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "onLanguage:python",
+    "onLanguage:pip-requirements",
+    "onLanguage:toml"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -47,6 +49,11 @@
           "scope": "machine-overridable",
           "default": true,
           "description": "%filterOutdatedIfUpToDateElsewhere%"
+        },
+        "pypiAssistant.codeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files."
         },
         "inlinePythonPackageInstaller.autoInstall": {
           "type": "boolean",
@@ -166,14 +173,28 @@
     "@typescript-eslint/parser": "^8.25.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
+    "glob": "^7.2.0",
+    "husky": "^7.0.4",
+    "jest": "^29.0.3",
+    "lint-staged": "^13.2.1",
+    "prettier": "^2.5.1",
+    "rimraf": "^4.0.0",
+    "ts-jest": "^29.1.2",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "fuzzaldrin-plus": "^0.6.0"
+    "dayjs": "^1.11.13",
+    "fuzzaldrin-plus": "^0.6.0",
+    "lru-cache": "^10.2.0",
+    "node-fetch": "^3.3.2",
+    "pip-requirements-js": "^0.2.1",
+    "toml-eslint-parser": "^0.10.0",
+    "wretch": "^2.11.0"
   },
   "l10n": "./l10n"
 }
