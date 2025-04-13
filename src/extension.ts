@@ -13,6 +13,8 @@ import { ProjectNameRequirement } from 'pip-requirements-js'
 import { RequirementsParser } from './parser'
 import { buildEnv, installPackagesUV, writeRequirements, removeEnv } from "./uv/commands";
 import { createEnvIcon, installPackagesIcon, writeEnvIcon, deleteEnvIcon } from "./uv/statusBarItems";
+import { registerCommands } from './uv/commands';
+import { registerPackageManager } from './uv/packageManager';
 
 export function activate(context: vscode.ExtensionContext) {
     // --------------------------------------------------------------------------
@@ -216,6 +218,11 @@ export function activate(context: vscode.ExtensionContext) {
         writeCommand,
         deleteCommand
     );
+
+    
+    registerCommands(context);
+    registerPackageManager(context);
+
 }
 
 
