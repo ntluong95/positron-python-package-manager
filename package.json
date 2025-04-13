@@ -61,7 +61,7 @@
         "positronPythonPackageManager.enableVersionDecorations": {
           "type": "boolean",
           "default": true,
-          "description": "Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files.."
+          "description": "Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files."
         },
         "inlinePythonPackageInstaller.autoInstall": {
           "type": "boolean",
