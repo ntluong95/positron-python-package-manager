@@ -420,53 +420,59 @@ async function upgradeDependencies() {
 
     if (!options) return;
 
-    let command = 'uv pip compile pyproject.toml -o uv.lock';
-    
+    let commands: string[] = []; // multiple commands if needed
+
     if (options.label === 'Upgrade all') {
-        command += ' --upgrade';
+        // Upgrade all dependencies
+        commands.push('uv sync --upgrade');
     } else if (options.label === 'Upgrade specific package') {
-        // Parse pyproject.toml to get the list of dependencies
+        // Parse pyproject.toml to get dependencies
         const pyprojectContent = fs.readFileSync(pyprojectPath, 'utf-8');
         const parsedToml = toml.parse(pyprojectContent);
 
         const dependencies: string[] = parsedToml.project?.dependencies ?? [];
-        
+
         if (dependencies.length === 0) {
-          vscode.window.showErrorMessage('No dependencies found in pyproject.toml');
-          return;
+            vscode.window.showErrorMessage('No dependencies found in pyproject.toml');
+            return;
         }
-        // Extract package names (before version constraints, extras, etc.)
+
+        // Extract clean package names
         const packages = dependencies.map(dep => dep.split(/[=<>!~\[]/)[0].trim());
         if (packages.length === 0) {
-          vscode.window.showErrorMessage('No packages found in dependencies.');
-          return;
+            vscode.window.showErrorMessage('No packages found in dependencies.');
+            return;
         }
+
         const selectedPackage = await vscode.window.showQuickPick(packages, {
-          placeHolder: 'Select a package to upgrade'
+            placeHolder: 'Select a package to upgrade'
         });
         if (!selectedPackage) return;
 
-        command += ` --upgrade-package ${selectedPackage}`;
+        // Remove the old version first
+        commands.push(`uv remove ${selectedPackage}`);
+        // Add the latest version
+        commands.push(`uv add ${selectedPackage}`);
     }
-    
+
     // Show progress notification
     vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: 'Upgrading dependencies',
         cancellable: false
-    }, async (progress) => {
+    }, async () => {
         try {
-            // Run uv pip compile command to upgrade dependencies
-            await new Promise<void>((resolve, reject) => {
-                exec(command, { cwd: workspaceRoot }, (error, stdout, stderr) => {
-                    if (error) {
-                        reject(new Error(stderr));
-                        return;
-                    }
-                    resolve();
+            for (const cmd of commands) {
+                await new Promise<void>((resolve, reject) => {
+                    exec(cmd, { cwd: workspaceRoot }, (error, stdout, stderr) => {
+                        if (error) {
+                            reject(new Error(stderr || stdout));
+                            return;
+                        }
+                        resolve();
+                    });
                 });
-            });
-            
+            }
             vscode.window.showInformationMessage('Dependencies upgraded successfully.');
         } catch (error: any) {
             vscode.window.showErrorMessage(`Failed to upgrade dependencies: ${error.message}`);

@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -58,6 +58,11 @@
           "default": true,
           "description": "Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files."
         },
+        "positronPythonPackageManager.enableVersionDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files.."
+        },
         "inlinePythonPackageInstaller.autoInstall": {
           "type": "boolean",
           "default": false,
@@ -85,6 +90,16 @@
         "command": "positron-python-package-manager.uninstallPackage",
         "title": "%uninstall.package%",
         "icon": "$(trash)"
+      },
+      {
+        "command": "positron-python-package-manager.checkOutdatedPackages",
+        "title": "Check Outdated Packages",
+        "icon": "$(arrow-circle-up)"
+      },
+      {
+        "command": "positron-python-package-manager.searchPackages",
+        "title": "%search.packages%",
+        "icon": "$(search)"
       },
       {
         "command": "positron-python-package-manager.refreshPackages",
@@ -148,7 +163,7 @@
       },
       {
         "command": "uv.upgradeDependencies",
-        "title": "PPM: Upgrade Dependencies",
+        "title": "PPM: Upgrade Dependencies to the latest",
         "category": "UV"
       },
       {
@@ -228,7 +243,7 @@
       },
       {
         "command": "uv.upgradeDependencies",
-        "title": "PPM: Upgrade Dependencies",
+        "title": "PPM: Upgrade Dependencies to the latest",
         "category": "UV"
       },
       {
@@ -396,6 +411,7 @@
     "@types/fuzzaldrin-plus": "^0.6.5",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/semver": "^7.7.0",
     "@types/vscode": "1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
@@ -423,6 +439,7 @@
     "lru-cache": "^10.2.0",
     "node-fetch": "^3.3.2",
     "pip-requirements-js": "^0.2.1",
+    "semver": "^7.7.1",
     "toml": "^3.0.0",
     "toml-eslint-parser": "^0.10.0",
     "wretch": "^2.11.0"
