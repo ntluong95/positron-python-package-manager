@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SidebarProvider, PyPackageItem } from './sidebar';
-import { execPromise } from './refresh';
+import { execPromise, refreshPackages } from './refresh';
 import { getPythonInterpreter } from './utils';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -18,6 +18,7 @@ export async function refreshOutdatedPackages(sidebarProvider: SidebarProvider):
             title: "Checking for outdated packages...",
             cancellable: false
         }, async () => {
+            await refreshPackages(sidebarProvider);
             const outdatedResult = await execPromise(`"${pythonPath}" -m pip list --outdated --format json`);
             const outdatedParsed: { name: string; latest_version: string }[] = JSON.parse(outdatedResult.stdout);
 
