@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -56,12 +56,12 @@
         "pypiAssistant.codeLens": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files."
+          "description": "Enable/disable latest package version CodeLens in pip-requirements and pyproject.toml files."
         },
         "positronPythonPackageManager.enableVersionDecorations": {
           "type": "boolean",
           "default": true,
-          "description": "Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files."
+          "description": "Enable decorations showing if package versions are up-to-date or outdated in pip-requirements and pyproject.toml files."
         },
         "inlinePythonPackageInstaller.autoInstall": {
           "type": "boolean",
@@ -112,9 +112,27 @@
         "category": "UV"
       },
       {
+        "command": "uv-wingman.buildEnvironment.ui",
+        "title": "Build Environment",
+        "icon": "$(tools)",
+        "actionBarOptions": {
+          "controlType": "button",
+          "displayTitle": true
+        }
+      },
+      {
         "command": "uv-wingman.installPackagesUV",
         "title": "PPM: install packages from opened file",
         "category": "UV"
+      },
+      {
+        "command": "uv-wingman.installPackagesUV.ui",
+        "title": "Install Packages",
+        "icon": "$(symbol-event)",
+        "actionBarOptions": {
+          "controlType": "button",
+          "displayTitle": true
+        }
       },
       {
         "command": "uv-wingman.writeRequirementsFile",
@@ -122,9 +140,27 @@
         "category": "UV"
       },
       {
+        "command": "uv-wingman.writeRequirementsFile.ui",
+        "title": "Write Requirement File",
+        "icon": "$(book)",
+        "actionBarOptions": {
+          "controlType": "button",
+          "displayTitle": true
+        }
+      },
+      {
         "command": "uv-wingman.deleteEnvironment",
         "title": "PPM: Delete Environment",
         "category": "UV"
+      },
+      {
+        "command": "uv-wingman.deleteEnvironment.ui",
+        "title": "Delete Environment",
+        "icon": "$(trashcan)",
+        "actionBarOptions": {
+          "controlType": "button",
+          "displayTitle": true
+        }
       },
       {
         "command": "uv.init",
@@ -306,6 +342,28 @@
       ]
     },
     "menus": {
+      "editor/actions/left": [
+        {
+          "command": "uv-wingman.buildEnvironment.ui",
+          "group": "uv@1",
+          "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml"
+        },
+        {
+          "command": "uv-wingman.installPackagesUV.ui",
+          "group": "uv@2",
+          "when": "resourceFilename == requirements.txt"
+        },
+        {
+          "command": "uv-wingman.writeRequirementsFile.ui",
+          "group": "uv@3",
+          "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml"
+        },
+        {
+          "command": "uv-wingman.deleteEnvironment.ui",
+          "group": "uv@4",
+          "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml"
+        }
+      ],
       "explorer/context": [
         {
           "when": "resourceFilename == pyproject.toml",

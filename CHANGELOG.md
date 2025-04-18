@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.1.1
+
+- Action for `pyproject.toml` and `requirements.txt` file now moved to action bar
+
+## 0.1.0
+
+- Change the icon of Python in Package Pane
+
 ## 0.0.9
 
 - Improve the display of tooltips

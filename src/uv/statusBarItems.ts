@@ -18,8 +18,8 @@ class CustomStatusBarItem {
     this.statusBar.text = defaultText;
     this.statusBar.tooltip = tooltip;
     this.statusBar.command = command;
-
-    this.displayDefault();
+    this.statusBar.hide();
+    // this.displayDefault();
   }
 
   displayDefault(): void {
@@ -35,6 +35,10 @@ class CustomStatusBarItem {
   displayLoading(): void {
     this.statusBar.text = this.loadingText;
     this.statusBar.show();
+  }
+
+  hide(): void {
+    this.statusBar.hide();
   }
 }
 

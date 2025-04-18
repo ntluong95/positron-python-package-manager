@@ -221,28 +221,49 @@ export function activate(context: vscode.ExtensionContext) {
 
     console.log('Congratulations, your extension "uv Wingman" is now active!');
 
-    const listener = (editor: vscode.TextEditor | undefined): void => {
-        console.log("Active window changed", editor);
+    // const listener = (editor: vscode.TextEditor | undefined): void => {
+    //     console.log("Active window changed", editor);
 
-        createEnvIcon.displayDefault();
-        installPackagesIcon.displayDefault();
-        writeEnvIcon.displayDefault();
-        deleteEnvIcon.displayDefault();
-    };
+    //     createEnvIcon.hide(); //REVIEW Hide the status bar
+    //     installPackagesIcon.hide();
+    //     writeEnvIcon.hide();
+    //     deleteEnvIcon.hide();
+    // };
 
-    const fileChangeSubscription = vscode.window.onDidChangeActiveTextEditor(listener);
+    // const fileChangeSubscription = vscode.window.onDidChangeActiveTextEditor(listener);
 
     const buildCommand = vscode.commands.registerCommand("uv-wingman.buildEnvironment", buildEnv);
     const installPackagesCommand = vscode.commands.registerCommand("uv-wingman.installPackagesUV", installPackagesUV);
     const writeCommand = vscode.commands.registerCommand("uv-wingman.writeRequirementsFile", writeRequirements);
     const deleteCommand = vscode.commands.registerCommand("uv-wingman.deleteEnvironment", removeEnv);
 
+    // UI-friendly duplicates that just call the originals - display in Editor Action bar
+    const buildCommandUI = vscode.commands.registerCommand("uv-wingman.buildEnvironment.ui", () => {
+    vscode.commands.executeCommand("uv-wingman.buildEnvironment");
+    });
+  
+    const installPackagesCommandUI = vscode.commands.registerCommand("uv-wingman.installPackagesUV.ui", () => {
+    vscode.commands.executeCommand("uv-wingman.installPackagesUV");
+    });
+  
+    const writeCommandUI = vscode.commands.registerCommand("uv-wingman.writeRequirementsFile.ui", () => {
+    vscode.commands.executeCommand("uv-wingman.writeRequirementsFile");
+    });
+  
+    const deleteCommandUI = vscode.commands.registerCommand("uv-wingman.deleteEnvironment.ui", () => {
+    vscode.commands.executeCommand("uv-wingman.deleteEnvironment");
+    });
+
     context.subscriptions.push(
-        fileChangeSubscription,
+        // fileChangeSubscription,
         buildCommand,
         installPackagesCommand,
         writeCommand,
-        deleteCommand
+        deleteCommand,
+        buildCommandUI,
+        installPackagesCommandUI,
+        writeCommandUI,
+        deleteCommandUI
     );
 
     

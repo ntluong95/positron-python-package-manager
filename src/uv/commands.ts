@@ -20,13 +20,13 @@ export function buildEnv(): void {
     if (filenameForwardSlash) {
       uvBuildEnv(filenameForwardSlash);
     }
-    createEnvIcon.displayDefault();
+    // createEnvIcon.displayDefault(); //REVIEW this will trigger statusbar
   } else if (activeFileIsPyProjectToml()) {
     if (filenameForwardSlash) {
       // You might define a new function, e.g. uvBuildEnvPyProject, that behaves accordingly
       uvBuildEnvPyProject(filenameForwardSlash);
     }
-    createEnvIcon.displayDefault();
+    // createEnvIcon.displayDefault();
   } else {
     const fileExt = path.extname(activeFilename);
     vscode.window.showErrorMessage(
@@ -48,7 +48,7 @@ export function installPackagesUV(): void {
     if (filenameForwardSlash) {
       uvInstallPackages(filenameForwardSlash);
     }
-    installPackagesIcon.displayDefault();
+    // installPackagesIcon.displayDefault();
   } else {
     const fileExt = path.extname(activeFilename);
     vscode.window.showErrorMessage(
@@ -76,7 +76,7 @@ export async function writeRequirements(): Promise<void> {
      the uvWriteRequirements function might still be processing.`
   );
 
-  writeEnvIcon.displayDefault();
+//   writeEnvIcon.displayDefault();
 }
 
 /**
@@ -88,7 +88,7 @@ export function removeEnv(): void {
   if (activeFileIsRequirementsTxt() || activeFileIsPyProjectToml()) {
     const envName = path.parse(activeFilename).name;
     uvRemoveEnv(envName);
-    deleteEnvIcon.displayDefault();
+    // deleteEnvIcon.displayDefault();
   } else {
     const fileExt = path.extname(activeFilename);
     vscode.window.showErrorMessage(
