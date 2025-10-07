@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.3
+
+- Add toggle button for version decorations in `pyproject.toml` and `requirements.txt` files
+- Toggle button appears in the editor action bar (right side) when viewing supported files
+- Allows users to quickly enable/disable package version status decorations
+
 ## 0.1.2
 
 - Increase performance of package decorations

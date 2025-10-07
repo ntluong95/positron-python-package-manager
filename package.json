@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -39,7 +39,8 @@
   "activationEvents": [
     "onLanguage:python",
     "onLanguage:pip-requirements",
-    "onLanguage:toml",
+    "workspaceContains:**/pyproject.toml",
+    "workspaceContains:**/requirements.txt",
     "onLanguage:plaintext"
   ],
   "main": "./dist/extension.js",
@@ -321,6 +322,16 @@
         "command": "uv.add",
         "title": "PPM: Add Package to Project",
         "category": "UV"
+      },
+      {
+        "command": "positron-python-package-manager.toggleVersionDecorations",
+        "title": "Package version status",
+        "actionBarOptions": {
+          "controlType": "toggle",
+          "leftTitle": "Hide",
+          "rightTitle": "Show",
+          "toggled": "config.positronPythonPackageManager.enableVersionDecorations"
+        }
       }
     ],
     "viewsContainers": {
@@ -342,6 +353,13 @@
       ]
     },
     "menus": {
+      "editor/actions/right": [
+        {
+          "command": "positron-python-package-manager.toggleVersionDecorations",
+          "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml",
+          "group": "uv@5"
+        }
+      ],
       "editor/actions/left": [
         {
           "command": "uv-wingman.buildEnvironment.ui",
@@ -491,8 +509,8 @@
     "rimraf": "^4.0.0",
     "sinon": "^19.0.2",
     "ts-jest": "^29.1.2",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.7.3",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.8.3",
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1"
   },
