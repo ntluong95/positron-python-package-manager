@@ -324,8 +324,13 @@
       },
       {
         "command": "positron-python-package-manager.toggleVersionDecorations",
-        "title": "PPM: Toggle Version Decorations",
-        "icon": "$(eye)"
+        "title": "Package version status",
+        "actionBarOptions": {
+          "controlType": "toggle",
+          "leftTitle": "Hide",
+          "rightTitle": "Show",
+          "toggled": "config.positronPythonPackageManager.enableVersionDecorations"
+        }
       }
     ],
     "viewsContainers": {
