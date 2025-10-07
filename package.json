@@ -442,7 +442,6 @@
           "when": "view == pythonPackageView",
           "group": "navigation@1"
         },
-        null,
         {
           "command": "positron-python-package-manager.checkOutdatedPackages",
           "when": "view == pythonPackageView",
