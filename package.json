@@ -39,7 +39,8 @@
   "activationEvents": [
     "onLanguage:python",
     "onLanguage:pip-requirements",
-    "onLanguage:toml",
+    "workspaceContains:**/pyproject.toml",
+    "workspaceContains:**/requirements.txt",
     "onLanguage:plaintext"
   ],
   "main": "./dist/extension.js",
@@ -356,7 +357,7 @@
         {
           "command": "positron-python-package-manager.toggleVersionDecorations",
           "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml",
-          "group": "1_editor_mode"
+          "group": "uv@5"
         }
       ],
       "editor/actions/left": [
