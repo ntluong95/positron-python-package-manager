@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
     "workspace"
   ],
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.99.0"
   },
   "categories": [
     "Programming Languages",
@@ -60,7 +60,7 @@
         },
         "positronPythonPackageManager.enableVersionDecorations": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Enable decorations showing if package versions are up-to-date or outdated in pip-requirements and pyproject.toml files."
         },
         "inlinePythonPackageInstaller.autoInstall": {
@@ -321,6 +321,11 @@
         "command": "uv.add",
         "title": "PPM: Add Package to Project",
         "category": "UV"
+      },
+      {
+        "command": "positron-python-package-manager.toggleVersionDecorations",
+        "title": "PPM: Toggle Version Decorations",
+        "icon": "$(eye)"
       }
     ],
     "viewsContainers": {
@@ -342,6 +347,13 @@
       ]
     },
     "menus": {
+      "editor/actions/right": [
+        {
+          "command": "positron-python-package-manager.toggleVersionDecorations",
+          "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml",
+          "group": "1_editor_mode"
+        }
+      ],
       "editor/actions/left": [
         {
           "command": "uv-wingman.buildEnvironment.ui",
@@ -424,20 +436,26 @@
           "when": "view == pythonPackageView",
           "group": "navigation@1"
         },
+        null,
+        {
+          "command": "positron-python-package-manager.checkOutdatedPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@2"
+        },
         {
           "command": "positron-python-package-manager.searchPackages",
           "when": "view == pythonPackageView",
           "group": "navigation@99"
         },
         {
+          "command": "positron-python-package-manager.filterLoadedPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@3"
+        },
+        {
           "command": "positron-python-package-manager.refreshPackages",
           "when": "view == pythonPackageView",
           "group": "navigation@100"
-        },
-        {
-          "command": "positron-python-package-manager.checkOutdatedPackages",
-          "when": "view == pythonPackageView",
-          "group": "navigation@3"
         }
       ],
       "view/item/context": [
