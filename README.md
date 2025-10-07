@@ -27,7 +27,7 @@ Manage your Python extensions from within [Positron](https://positron.posit.co/)
 
 ## 🛠 Requirements
 
-- Positron version `2025.04.0-250` or later
+- Positron version `2025.09.0-139` or later
 - `uv` if you want to manage virtual environment
 - `pip` and `module-inspector` must be installed in the Python runtime.
 - Python installed and working inside Positron
@@ -44,7 +44,7 @@ This extension provides the following setting:
   Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files.
 
 - `positronPythonPackageManager.enableVersionDecorations`  
-  _(boolean, default: `true`)_  
+  _(boolean, default: `false`)_  
   Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files
 
 - `inlinePythonPackageInstaller.autoInstall`
@@ -59,11 +59,17 @@ You can configure this setting in your VS Code settings (`settings.json`) or thr
 
 ---
 
-
 ## ⚠️ Known Issues
 
 - Refresh package view will print the commmand and result into console
 - Clicking on package's name doesn't show its documentation in Help pane due to the different in package name and module imported. For example, the package name is pyjanitor but it is imported as `import janitor`
+
+---
+
+## 💡 Future Ideas
+
+- [ ] Update package to a specific version
+- [ ] Provide multiple way to install packages from .whl, .tar.gz file
 
 ---
 
@@ -72,12 +78,6 @@ You can configure this setting in your VS Code settings (`settings.json`) or thr
 Created by [ntluong95](https://github.com/ntluong95)  
 Licensed under the [MIT License](./LICENSE)
 
----
-
-## 💡 Future Ideas
-
-- [ ] Update package to a specific version
-- [ ] Provide multiple way to install packages from .whl, .tar.gz file
 ---
 
 ## 🧠 Why Positron?

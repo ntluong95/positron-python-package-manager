@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.2
+
+- Increase performance of package decorations
+- Turn off decorations by default
+- Update README.md
+
 ## 0.1.1
 
 - Action for `pyproject.toml` and `requirements.txt` file now moved to action bar
