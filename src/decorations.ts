@@ -40,7 +40,7 @@ export function getDecorationOptions(
     renderOptions: {
       after: {
         contentText: `${padding}${
-          status === "outdated" ? "❌ Old Version" : "✅ Newest"
+          status === "outdated" ? "⚠️ Outdated version" : "✅ Updated version"
         }`,
       },
     },

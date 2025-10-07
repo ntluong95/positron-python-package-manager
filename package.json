@@ -60,7 +60,7 @@
         },
         "positronPythonPackageManager.enableVersionDecorations": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Enable decorations showing if package versions are up-to-date or outdated in pip-requirements and pyproject.toml files."
         },
         "inlinePythonPackageInstaller.autoInstall": {
