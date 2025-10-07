@@ -13,8 +13,12 @@ import { ProjectNameRequirement } from "pip-requirements-js";
 
 const pypi = new PyPI();
 const requirementsParser = new RequirementsParser();
-const concurrencyLimit = 5;
+const concurrencyLimit = 10; // Increased from 5 for better performance
 const limit = pLimit(concurrencyLimit);
+
+// Debouncing map to prevent excessive decoration updates
+const decorationTimeouts = new Map<string, NodeJS.Timeout>();
+const DEBOUNCE_DELAY = 300; // milliseconds
 
 //NOTE Parse a dependency line from requirements.txt or pyproject.toml
 function parsePackageLine(
@@ -48,10 +52,34 @@ function parsePackageLine(
 export async function addVersionComparisonDecorations(
   document: vscode.TextDocument
 ) {
+  const documentUri = document.uri.toString();
+
+  // Clear existing timeout for this document
+  if (decorationTimeouts.has(documentUri)) {
+    clearTimeout(decorationTimeouts.get(documentUri)!);
+  }
+
+  // Set new timeout for debounced execution
+  const timeoutId = setTimeout(async () => {
+    decorationTimeouts.delete(documentUri);
+    await performVersionComparisonDecorations(document);
+  }, DEBOUNCE_DELAY);
+
+  decorationTimeouts.set(documentUri, timeoutId);
+}
+
+//NOTE Actual decoration implementation
+async function performVersionComparisonDecorations(
+  document: vscode.TextDocument
+) {
   const editor = vscode.window.visibleTextEditors.find(
     (editor) => editor.document === document
   );
   if (!editor) return;
+
+  // Clear existing decorations immediately for better UX
+  editor.setDecorations(outdatedDecorationType, []);
+  editor.setDecorations(upToDateDecorationType, []);
 
   const text = document.getText();
   const lines = text.split("\n");
@@ -63,12 +91,17 @@ export async function addVersionComparisonDecorations(
 
   const decorationPromises = lines.map((line, i) =>
     limit(async () => {
+      // Early exit for empty lines and comments
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) {
+        return;
+      }
+
       let parsed = null;
 
       if (document.languageId === "pip-requirements") {
         parsed = parsePackageLine(line, document.languageId);
       } else if (document.languageId === "toml") {
-        const trimmed = line.trim();
         if (trimmed.startsWith("dependencies") && trimmed.includes("[")) {
           insideDependenciesBlock = true;
           return;
@@ -103,9 +136,13 @@ export async function addVersionComparisonDecorations(
             );
 
             if (semver.lt(declaredVersion, latestClean)) {
-              outdatedOptions.push(getDecorationOptions(range, "outdated"));
+              outdatedOptions.push(
+                getDecorationOptions(range, "outdated", document)
+              );
             } else {
-              upToDateOptions.push(getDecorationOptions(range, "up-to-date"));
+              upToDateOptions.push(
+                getDecorationOptions(range, "up-to-date", document)
+              );
             }
           }
         } catch (error) {
@@ -115,8 +152,10 @@ export async function addVersionComparisonDecorations(
     })
   );
 
+  // Process all decoration promises
   await Promise.all(decorationPromises);
 
+  // Apply decorations in a single batch for better performance
   editor.setDecorations(outdatedDecorationType, outdatedOptions);
   editor.setDecorations(upToDateDecorationType, upToDateOptions);
 }

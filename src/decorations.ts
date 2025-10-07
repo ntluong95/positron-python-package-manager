@@ -24,12 +24,11 @@ export function initializeDecoration() {
 
 export function getDecorationOptions(
   range: vscode.Range,
-  status: "outdated" | "up-to-date"
+  status: "outdated" | "up-to-date",
+  document: vscode.TextDocument
 ): vscode.DecorationOptions {
   // Calculate the position to align decoration at column 80
-  const lineText =
-    vscode.window.activeTextEditor?.document.lineAt(range.start.line).text ||
-    "";
+  const lineText = document.lineAt(range.start.line).text;
   const lineLength = lineText.length;
   const targetColumn = 80;
   const spacesNeeded = Math.max(1, targetColumn - lineLength);
