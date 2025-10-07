@@ -43,7 +43,9 @@ export function activate(context: vscode.ExtensionContext) {
         .get("enableVersionDecorations", true);
       if (
         enableDecorations &&
-        ["pip-requirements", "toml"].includes(document.languageId)
+        (document.languageId === "pip-requirements" ||
+          (document.languageId === "toml" &&
+            document.fileName.endsWith("pyproject.toml")))
       ) {
         await addVersionComparisonDecorations(document);
       }
@@ -54,7 +56,9 @@ export function activate(context: vscode.ExtensionContext) {
         .get("enableVersionDecorations", true);
       if (
         enableDecorations &&
-        ["pip-requirements", "toml"].includes(event.document.languageId)
+        (event.document.languageId === "pip-requirements" ||
+          (event.document.languageId === "toml" &&
+            event.document.fileName.endsWith("pyproject.toml")))
       ) {
         await addVersionComparisonDecorations(event.document);
       }
@@ -66,7 +70,9 @@ export function activate(context: vscode.ExtensionContext) {
       if (
         enableDecorations &&
         editor &&
-        ["pip-requirements", "toml"].includes(editor.document.languageId)
+        (editor.document.languageId === "pip-requirements" ||
+          (editor.document.languageId === "toml" &&
+            editor.document.fileName.endsWith("pyproject.toml")))
       ) {
         await addVersionComparisonDecorations(editor.document);
       }
@@ -296,7 +302,9 @@ export function activate(context: vscode.ExtensionContext) {
           // If we're turning decorations on, add them to all open documents
           for (const editor of vscode.window.visibleTextEditors) {
             if (
-              ["pip-requirements", "toml"].includes(editor.document.languageId)
+              editor.document.languageId === "pip-requirements" ||
+              (editor.document.languageId === "toml" &&
+                editor.document.fileName.endsWith("pyproject.toml"))
             ) {
               await addVersionComparisonDecorations(editor.document);
             }
@@ -305,7 +313,9 @@ export function activate(context: vscode.ExtensionContext) {
           // If we're turning decorations off, clear them from all open documents
           for (const editor of vscode.window.visibleTextEditors) {
             if (
-              ["pip-requirements", "toml"].includes(editor.document.languageId)
+              editor.document.languageId === "pip-requirements" ||
+              (editor.document.languageId === "toml" &&
+                editor.document.fileName.endsWith("pyproject.toml"))
             ) {
               editor.setDecorations(outdatedDecorationType, []);
               editor.setDecorations(upToDateDecorationType, []);
@@ -333,8 +343,16 @@ export function activate(context: vscode.ExtensionContext) {
     codeLensProvider
   );
   vscode.languages.registerHoverProvider("pip-requirements", hoverProvider);
-  vscode.languages.registerCodeLensProvider("toml", codeLensProvider);
-  vscode.languages.registerHoverProvider("toml", hoverProvider);
+
+  // Register for TOML files, but only pyproject.toml specifically
+  vscode.languages.registerCodeLensProvider(
+    { language: "toml", pattern: "**/pyproject.toml" },
+    codeLensProvider
+  );
+  vscode.languages.registerHoverProvider(
+    { language: "toml", pattern: "**/pyproject.toml" },
+    hoverProvider
+  );
 
   // --------------------------------------------------------------------------
   // uv support - Manage uv dependencies
