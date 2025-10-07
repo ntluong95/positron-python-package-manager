@@ -44,7 +44,7 @@ This extension provides the following setting:
   Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files.
 
 - `positronPythonPackageManager.enableVersionDecorations`  
-  _(boolean, default: `true`)_  
+  _(boolean, default: `false`)_  
   Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files
 
 - `inlinePythonPackageInstaller.autoInstall`
