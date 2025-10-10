@@ -9,7 +9,7 @@ export function uvBuildEnv(filename: string): void {
     console.log(`Activating environment from ${filename}.`);
 
     sendCommandToTerminal(`deactivate`);
-    sendCommandToTerminal(`uv venv`);
+    sendCommandToTerminal(`uv venv --seed`);
     sendCommandToTerminal(getActivateCommand());
     uvInstallPackages(filename);
   } catch (error) {
