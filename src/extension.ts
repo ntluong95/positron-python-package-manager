@@ -506,7 +506,7 @@ export function activate(context: vscode.ExtensionContext) {
     deleteCommandUI
   );
 
-  registerCommands(context);
+  // registerCommands(context); // REMOVED: Already called at line 37
   registerPackageManager(context);
 }
 
