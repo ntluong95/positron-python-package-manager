@@ -535,6 +535,38 @@ class MissingImportProvider implements vscode.CodeActionProvider {
       return undefined;
     }
     const moduleName = importMatch[1] || importMatch[2];
+
+    // Only offer the quick-fix if there's an unresolved-import diagnostic.
+    // This prevents false positives and ensures we only suggest installs when
+    // the language server (Pylance, Pyright, Jedi, etc.) reports a problem.
+    const diagnostics = vscode.languages.getDiagnostics(document.uri);
+    const diagnosticsForLine = diagnostics.filter(
+      (d) =>
+        d.range.intersection(range) !== undefined ||
+        d.range.start.line === range.start.line
+    );
+
+    const hasUnresolvedImport = diagnosticsForLine.some((d) => {
+      // Heuristics for common language server messages:
+      // - Pylance/Pyright: code === 'reportMissingImports' or message includes 'could not be resolved'
+      // - Other servers may use different messages; adjust as needed.
+      const msg = (d.message || "").toLowerCase();
+      if (d.code === "reportMissingImports") {
+        return true;
+      }
+      return (
+        msg.includes("could not be resolved") ||
+        msg.includes("unresolved import") ||
+        msg.includes("no module named") ||
+        msg.includes("cannot find module") ||
+        msg.includes("module not found")
+      );
+    });
+
+    if (!hasUnresolvedImport) {
+      return undefined;
+    }
+
     // Create a quick-fix action to install the missing module.
     const installAction = new vscode.CodeAction(
       `Install missing module '${moduleName}'`,

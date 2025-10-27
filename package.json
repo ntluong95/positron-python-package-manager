@@ -65,7 +65,7 @@
         },
         "missingPackageInstaller.autoInstall": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Automatically install missing Python modules without prompting."
         },
         "missingPackageInstaller.customPipCommand": {
