@@ -559,7 +559,9 @@ class MissingImportProvider implements vscode.CodeActionProvider {
         msg.includes("unresolved import") ||
         msg.includes("no module named") ||
         msg.includes("cannot find module") ||
-        msg.includes("module not found")
+        msg.includes("module not found") ||
+        msg.includes("cannot resolve imported") ||
+        msg.includes("not find import of")
       );
     });
 
