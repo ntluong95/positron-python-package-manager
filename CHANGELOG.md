@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.4
+
+- Update the display icons for package version status in the decorations module
+- Change the extension logo
+- Bugs fixes and performance improvements
+
 ## 0.1.3
 
 - Add toggle button for version decorations in `pyproject.toml` and `requirements.txt` files
