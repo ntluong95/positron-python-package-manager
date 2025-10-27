@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
     "extension.installModule",
     async (moduleName: string) => {
       const config = vscode.workspace.getConfiguration(
-        "inlinePythonPackageInstaller"
+        "missingPackageInstaller"
       );
       // Read settings for auto-install and custom pip command
       // Get the current Python interpreter from the Python extension.
@@ -138,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Build an install command using the active interpreter, but consult
       // the user's custom pip command setting if present.
-      // The `inlinePythonPackageInstaller.customPipCommand` setting is expected
+      // The `missingPackageInstaller.customPipCommand` setting is expected
       // to be a pip-style command, e.g. `pip install` (default). If the value
       // contains the placeholder `{python}` it will be replaced with the
       // interpreter path (PowerShell-friendly on Windows). Otherwise we run
@@ -213,8 +213,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
       }
 
-      // Create a terminal and execute the install command.
-      const terminal = vscode.window.createTerminal(`Install: ${moduleName}`);
+      // Reuse a single dedicated terminal for installs to avoid spawning a new
+      // shell each time. Look for an existing terminal with a fixed name and
+      // create it if missing.
+      const installerTerminalName = "Python Module Installer";
+      let terminal = vscode.window.terminals.find(
+        (t) => t.name === installerTerminalName
+      );
+      if (!terminal) {
+        terminal = vscode.window.createTerminal(installerTerminalName);
+      }
 
       if (autoInstall) {
         terminal.sendText(installCommand);
@@ -610,10 +618,11 @@ export class PyPIHoverProvider implements vscode.HoverProvider {
     const licenseSubpart: string | null = info.license
       ? `License: ${info.license}.`
       : null;
-    if (authorSubpart || licenseSubpart)
+    if (authorSubpart || licenseSubpart) {
       metadataPresentation.push(
         [authorSubpart, licenseSubpart].filter(Boolean).join(" ")
       );
+    }
     metadataPresentation.push(
       `Latest version: ${linkify(
         info.version,
@@ -645,7 +654,7 @@ export class PyPICodeLensProvider
 
   public provideCodeLenses(document: vscode.TextDocument): PyPICodeLens[] {
     const codeLensEnabled = vscode.workspace
-      .getConfiguration("pypiAssistant")
+      .getConfiguration("pythonProject")
       .get("codeLens");
     if (!codeLensEnabled) {
       return [];

@@ -42,13 +42,13 @@ Manage Python packages directly inside Positron IDE, a fork of VSCode. PyPkgMan 
 
 This extension provides the following setting:
 
-- `pypiAssistant.codeLens`: _(boolean, default: `false`)_  
+- `pythonProject.codeLens`: _(boolean, default: `false`)_  
   Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files.
 
 - `positronPythonPackageManager.enableVersionDecorations`: _(boolean, default: `false`)_  
   Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files
 
-- `inlinePythonPackageInstaller.autoInstall`: _(boolean, default: `false`)_
+- `missingPackageInstaller.autoInstall`: _(boolean, default: `false`)_
   Automatically install missing Python modules without prompting.
 
   Custom pip command to use for installing modules.
@@ -59,7 +59,7 @@ You can configure this setting in your VS Code settings (`settings.json`) or thr
 
 ## 🔧 Customizing the installer command
 
-PPM lets you customize how the quick-fix installer runs via the workspace setting `inlinePythonPackageInstaller.customPipCommand` (default: `pip install`). The extension supports two template placeholders:
+PPM lets you customize how the quick-fix installer runs via the workspace setting `missingPackageInstaller.customPipCommand` (default: `pip install`). The extension supports two template placeholders:
 
 - `{python}` — replaced with the resolved Python interpreter path (PowerShell-safe on Windows). Use this when you need the interpreter inserted into the command explicitly.
 - `{module}` — replaced with the package/module name being installed.
@@ -69,7 +69,7 @@ Examples
 - Default (recommended):
 
   ```json
-  "inlinePythonPackageInstaller.customPipCommand": "pip install"
+  "missingPackageInstaller.customPipCommand": "pip install"
   ```
 
   This runs: `"<interpreter>" -m pip install <module>` so the install targets the active interpreter.
@@ -77,7 +77,7 @@ Examples
 - Add flags (still using pip through the interpreter):
 
   ```json
-  "inlinePythonPackageInstaller.customPipCommand": "pip install --upgrade"
+  "missingPackageInstaller.customPipCommand": "pip install --upgrade"
   ```
 
   Runs: `"<interpreter>" -m pip install --upgrade <module>`
@@ -85,7 +85,7 @@ Examples
 - Use the interpreter directly (full control):
 
   ```json
-  "inlinePythonPackageInstaller.customPipCommand": "{python} -m pip install --no-cache-dir {module}"
+  "missingPackageInstaller.customPipCommand": "{python} -m pip install --no-cache-dir {module}"
   ```
 
   Runs exactly what you specify, replacing `{python}` and `{module}`.
@@ -93,7 +93,7 @@ Examples
 - Poetry (direct CLI):
 
   ```json
-  "inlinePythonPackageInstaller.customPipCommand": "poetry add {module} --dev"
+  "missingPackageInstaller.customPipCommand": "poetry add {module} --dev"
   ```
 
   Runs `poetry add <module> --dev` directly; make sure `poetry` is on PATH or provide a full path.
@@ -101,7 +101,7 @@ Examples
 - Conda (direct CLI):
 
   ```json
-  "inlinePythonPackageInstaller.customPipCommand": "conda install -y {module}"
+  "missingPackageInstaller.customPipCommand": "conda install -y {module}"
   ```
 
 Notes and caveats

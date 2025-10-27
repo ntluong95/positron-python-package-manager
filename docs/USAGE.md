@@ -23,12 +23,12 @@ From the sidebar:
 
 When editing Python code, if the extension detects an import that can't be resolved it will offer a quick-fix (Code Action) called `Install missing module 'X'`. Selecting this will:
 
-- Ask for confirmation (unless `inlinePythonPackageInstaller.autoInstall` is true)
+- Ask for confirmation (unless `missingPackageInstaller.autoInstall` is true)
 - Use the configured interpreter to run `python -m pip install <module>` in a new terminal
 
 ### Custom installer command
 
-You can customize how the quick-fix installer runs by setting `inlinePythonPackageInstaller.customPipCommand` in your workspace/user settings. The extension supports two placeholders:
+You can customize how the quick-fix installer runs by setting `missingPackageInstaller.customPipCommand` in your workspace/user settings. The extension supports two placeholders:
 
 - `{python}` — replaced with the resolved Python interpreter path (PowerShell-safe on Windows).
 - `{module}` — replaced with the package name being installed.
@@ -37,7 +37,7 @@ Examples:
 
 ```json
 {
-  "inlinePythonPackageInstaller.customPipCommand": "pip install"
+  "missingPackageInstaller.customPipCommand": "pip install"
 }
 ```
 
@@ -47,7 +47,7 @@ For poetry or conda you can run the direct CLI (the command will be executed as-
 
 ```json
 {
-  "inlinePythonPackageInstaller.customPipCommand": "poetry add {module} --dev"
+  "missingPackageInstaller.customPipCommand": "poetry add {module} --dev"
 }
 ```
 
@@ -55,7 +55,7 @@ Or use the `{python}` placeholder for full control:
 
 ```json
 {
-  "inlinePythonPackageInstaller.customPipCommand": "{python} -m pip install --no-cache-dir {module}"
+  "missingPackageInstaller.customPipCommand": "{python} -m pip install --no-cache-dir {module}"
 }
 ```
 
@@ -66,7 +66,7 @@ Notes:
 
 ## Decorations, Hovers and CodeLens
 
-- Hovers and CodeLens are provided for `pip-requirements` and `pyproject.toml` files to show package metadata and latest versions (controlled via `pypiAssistant.codeLens`).
+- Hovers and CodeLens are provided for `pip-requirements` and `pyproject.toml` files to show package metadata and latest versions (controlled via `pythonProject.codeLens`).
 - Decorations show package version status in requirements files when `positronPythonPackageManager.enableVersionDecorations` is enabled.
 
 ## Commands (common examples)

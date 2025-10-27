@@ -24,17 +24,16 @@
   "keywords": [
     "python",
     "package",
+    "dependencies",
     "Positron",
-    "pandas",
     "install",
     "uninstall",
     "update",
     "UV",
-    "dependencies",
-    "PyPI",
+    "conda",
+    "poetry",
     "pip",
-    "package manager",
-    "search"
+    "package manager"
   ],
   "activationEvents": [
     "onLanguage:python",
@@ -54,7 +53,7 @@
           "default": true,
           "description": "%filterOutdatedIfUpToDateElsewhere%"
         },
-        "pypiAssistant.codeLens": {
+        "pythonProject.codeLens": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable latest package version CodeLens in pip-requirements and pyproject.toml files."
@@ -64,15 +63,24 @@
           "default": false,
           "description": "Enable decorations showing if package versions are up-to-date or outdated in pip-requirements and pyproject.toml files."
         },
-        "inlinePythonPackageInstaller.autoInstall": {
+        "missingPackageInstaller.autoInstall": {
           "type": "boolean",
           "default": false,
           "description": "Automatically install missing Python modules without prompting."
         },
-        "inlinePythonPackageInstaller.customPipCommand": {
+        "missingPackageInstaller.customPipCommand": {
           "type": "string",
-          "default": "pip install",
-          "description": "Custom pip command to use for installing modules."
+          "default": "uv add",
+          "enum": [
+            "uv add",
+            "poetry add",
+            "conda install",
+            "pip install",
+            "pip3 install",
+            "python -m pip install",
+            "python3 -m pip install"
+          ],
+          "description": "Custom command to use for installing packages. Example options shown below (default: 'uv add'). You can also include flags or full templates, e.g. 'uv add --dev', 'poetry add --dev', 'conda install -c conda-forge <package>', or 'python -m pip install --user --upgrade <package>'."
         }
       }
     },
