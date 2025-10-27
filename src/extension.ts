@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
     "extension.installModule",
     async (moduleName: string) => {
       const config = vscode.workspace.getConfiguration(
-        "inlinePythonPackageInstaller"
+        "missingPackageInstaller"
       );
       // Read settings for auto-install and custom pip command
       // Get the current Python interpreter from the Python extension.
@@ -136,16 +136,93 @@ export function activate(context: vscode.ExtensionContext) {
       // Read settings for auto-install and custom pip command
       const autoInstall = config.get<boolean>("autoInstall", false);
 
-      // Build an install command using the active interpreter, so that its pip is used.
+      // Build an install command using the active interpreter, but consult
+      // the user's custom pip command setting if present.
+      // The `missingPackageInstaller.customPipCommand` setting is expected
+      // to be a pip-style command, e.g. `pip install` (default). If the value
+      // contains the placeholder `{python}` it will be replaced with the
+      // interpreter path (PowerShell-friendly on Windows). Otherwise we run
+      // the configured command through the active interpreter using
+      // `python -m <customCmd>` to ensure the interpreter's pip is used.
+      const customPipCommand = config.get<string>(
+        "customPipCommand",
+        "pip install"
+      );
+
       let installCommand: string;
-      if (process.platform === "win32") {
-        installCommand = `& "${pythonPath}" -m pip install ${moduleName}`;
+      // Prefer the adjusted actual interpreter path (Windows bin -> Scripts fix)
+      const interpreterPath = actualPythonPath || pythonPath;
+
+      // Support a few common scenarios for custom commands:
+      // 1) A template containing `{python}` — we replace it with the resolved
+      //    interpreter path (PowerShell-safe on Windows) and then inject the
+      //    module name (or use `{module}` if provided).
+      // 2) A direct CLI (e.g. `conda install`, `poetry add`, `uv add`) — run
+      //    the command directly and append/replace `{module}` as needed.
+      // 3) A normal pip-style command (default) — run it through the active
+      //    interpreter as `python -m <cmd> <module>` to ensure the target env
+      //    is used.
+
+      const cmdTemplate = customPipCommand.trim();
+      const modulePlaceholder = "{module}";
+      const normalizedFirstToken = cmdTemplate.split(/\s+/)[0].toLowerCase();
+
+      const directCLIWhitelabel = new Set([
+        "conda",
+        "mamba",
+        "micromamba",
+        "poetry",
+        "uv",
+        "pipx",
+        "pipenv",
+      ]);
+
+      if (cmdTemplate.includes("{python}")) {
+        // Fully-controlled template where user dictates how python is invoked.
+        let cmd = cmdTemplate;
+        if (process.platform === "win32") {
+          cmd = cmd.replace(/\{python\}/g, `& "${interpreterPath}"`);
+        } else {
+          cmd = cmd.replace(/\{python\}/g, `"${interpreterPath}"`);
+        }
+        if (cmd.includes(modulePlaceholder)) {
+          cmd = cmd.replace(new RegExp(modulePlaceholder, "g"), moduleName);
+        } else {
+          cmd = `${cmd} ${moduleName}`;
+        }
+        installCommand = cmd.trim();
+      } else if (directCLIWhitelabel.has(normalizedFirstToken)) {
+        // Treat as a direct CLI (do not prefix with `python -m`). Respect
+        // `{module}` placeholder if provided.
+        let cmd = cmdTemplate;
+        if (cmd.includes(modulePlaceholder)) {
+          cmd = cmd.replace(new RegExp(modulePlaceholder, "g"), moduleName);
+        } else {
+          cmd = `${cmd} ${moduleName}`;
+        }
+        installCommand = cmd.trim();
       } else {
-        installCommand = `"${pythonPath}" -m pip install ${moduleName}`;
+        // Fallback: run the configured command as a module under the active
+        // interpreter. This preserves prior behavior for `pip install` and
+        // supports flags like `--upgrade`.
+        const cmd = cmdTemplate;
+        if (process.platform === "win32") {
+          installCommand = `& "${interpreterPath}" -m ${cmd} ${moduleName}`;
+        } else {
+          installCommand = `"${interpreterPath}" -m ${cmd} ${moduleName}`;
+        }
       }
 
-      // Create a terminal and execute the install command.
-      const terminal = vscode.window.createTerminal(`Install: ${moduleName}`);
+      // Reuse a single dedicated terminal for installs to avoid spawning a new
+      // shell each time. Look for an existing terminal with a fixed name and
+      // create it if missing.
+      const installerTerminalName = "Python Module Installer";
+      let terminal = vscode.window.terminals.find(
+        (t) => t.name === installerTerminalName
+      );
+      if (!terminal) {
+        terminal = vscode.window.createTerminal(installerTerminalName);
+      }
 
       if (autoInstall) {
         terminal.sendText(installCommand);
@@ -458,6 +535,40 @@ class MissingImportProvider implements vscode.CodeActionProvider {
       return undefined;
     }
     const moduleName = importMatch[1] || importMatch[2];
+
+    // Only offer the quick-fix if there's an unresolved-import diagnostic.
+    // This prevents false positives and ensures we only suggest installs when
+    // the language server (Pylance, Pyright, Jedi, etc.) reports a problem.
+    const diagnostics = vscode.languages.getDiagnostics(document.uri);
+    const diagnosticsForLine = diagnostics.filter(
+      (d) =>
+        d.range.intersection(range) !== undefined ||
+        d.range.start.line === range.start.line
+    );
+
+    const hasUnresolvedImport = diagnosticsForLine.some((d) => {
+      // Heuristics for common language server messages:
+      // - Pylance/Pyright: code === 'reportMissingImports' or message includes 'could not be resolved'
+      // - Other servers may use different messages; adjust as needed.
+      const msg = (d.message || "").toLowerCase();
+      if (d.code === "reportMissingImports") {
+        return true;
+      }
+      return (
+        msg.includes("could not be resolved") ||
+        msg.includes("unresolved import") ||
+        msg.includes("no module named") ||
+        msg.includes("cannot find module") ||
+        msg.includes("module not found") ||
+        msg.includes("cannot resolve imported") ||
+        msg.includes("not find import of")
+      );
+    });
+
+    if (!hasUnresolvedImport) {
+      return undefined;
+    }
+
     // Create a quick-fix action to install the missing module.
     const installAction = new vscode.CodeAction(
       `Install missing module '${moduleName}'`,
@@ -541,10 +652,11 @@ export class PyPIHoverProvider implements vscode.HoverProvider {
     const licenseSubpart: string | null = info.license
       ? `License: ${info.license}.`
       : null;
-    if (authorSubpart || licenseSubpart)
+    if (authorSubpart || licenseSubpart) {
       metadataPresentation.push(
         [authorSubpart, licenseSubpart].filter(Boolean).join(" ")
       );
+    }
     metadataPresentation.push(
       `Latest version: ${linkify(
         info.version,
@@ -576,7 +688,7 @@ export class PyPICodeLensProvider
 
   public provideCodeLenses(document: vscode.TextDocument): PyPICodeLens[] {
     const codeLensEnabled = vscode.workspace
-      .getConfiguration("pypiAssistant")
+      .getConfiguration("pythonProject")
       .get("codeLens");
     if (!codeLensEnabled) {
       return [];

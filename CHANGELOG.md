@@ -5,6 +5,7 @@
 - Add toggle button for version decorations in `pyproject.toml` and `requirements.txt` files
 - Toggle button appears in the editor action bar (right side) when viewing supported files
 - Allows users to quickly enable/disable package version status decorations
+- Fix custom pip command setting not being used in quick-fix installer
 
 ## 0.1.2
 
