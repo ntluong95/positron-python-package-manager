@@ -3,10 +3,10 @@
   "short.name": "Positron Python Package Manager",
   "description": "Mimic RStudio's package management capabilities for Positron.",
   "filterOutdatedIfUpToDateElsewhere": "Filter out outdated packages if an up-to-date version is installed in another library path during updates.",
-  "install.packages": "PPM: Install Packages",
-  "uninstall.package": "PPM: Uninstall Package",
-  "update.packages": "PPM: Update Installed Packages",
-  "refresh.packages": "PPM: Refresh package information",
-  "search.packages": "PPM: Search for installed packages",
+  "install.packages": "PyPkgMan: Install Packages",
+  "uninstall.package": "PyPkgMan: Uninstall Package",
+  "update.packages": "PyPkgMan: Update Installed Packages",
+  "refresh.packages": "PyPkgMan: Refresh package information",
+  "search.packages": "PyPkgMan: Search for installed packages",
   "packages": "Packages"
 }

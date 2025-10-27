@@ -79,7 +79,7 @@
     "commands": [
       {
         "command": "extension.installModule",
-        "title": "PPM: Install Missing Python Module",
+        "title": "PyPkgMan: Install Missing Python Module",
         "icon": "$(desktop-download)"
       },
       {
@@ -94,7 +94,7 @@
       },
       {
         "command": "positron-python-package-manager.checkOutdatedPackages",
-        "title": "PPM: Check Outdated Packages",
+        "title": "PyPkgMan: Check Outdated Packages",
         "icon": "$(arrow-circle-up)"
       },
       {
@@ -109,7 +109,7 @@
       },
       {
         "command": "uv-wingman.buildEnvironment",
-        "title": "PPM: Build Environment from opened file",
+        "title": "PyPkgMan: Build Environment from opened file",
         "category": "UV"
       },
       {
@@ -123,7 +123,7 @@
       },
       {
         "command": "uv-wingman.installPackagesUV",
-        "title": "PPM: install packages from opened file",
+        "title": "PyPkgMan: install packages from opened file",
         "category": "UV"
       },
       {
@@ -137,7 +137,7 @@
       },
       {
         "command": "uv-wingman.writeRequirementsFile",
-        "title": "PPM: Write a requirements.txt file from the active environment",
+        "title": "PyPkgMan: Write a requirements.txt file from the active environment",
         "category": "UV"
       },
       {
@@ -151,7 +151,7 @@
       },
       {
         "command": "uv-wingman.deleteEnvironment",
-        "title": "PPM: Delete Environment",
+        "title": "PyPkgMan: Delete Environment",
         "category": "UV"
       },
       {
@@ -165,162 +165,162 @@
       },
       {
         "command": "uv.init",
-        "title": "PPM: Initialize Project",
+        "title": "PyPkgMan: Initialize Project",
         "category": "UV"
       },
       {
         "command": "uv.sync",
-        "title": "PPM: Sync Dependencies",
+        "title": "PyPkgMan: Sync Dependencies",
         "category": "UV"
       },
       {
         "command": "uv.upgrade",
-        "title": "PPM: Upgrade Packages",
+        "title": "PyPkgMan: Upgrade Packages",
         "category": "UV"
       },
       {
         "command": "uv.cache.clean",
-        "title": "PPM: Clean Cache",
+        "title": "PyPkgMan: Clean Cache",
         "category": "UV"
       },
       {
         "command": "uv.removePackage",
-        "title": "PPM: Remove Package from pyproject.toml",
+        "title": "PyPkgMan: Remove Package from pyproject.toml",
         "category": "UV"
       },
       {
         "command": "uv.searchPackage",
-        "title": "PPM: Search Package on PyPI",
+        "title": "PyPkgMan: Search Package on PyPI",
         "category": "UV"
       },
       {
         "command": "uv.generateLock",
-        "title": "PPM: Generate Lock File",
+        "title": "PyPkgMan: Generate Lock File",
         "category": "UV"
       },
       {
         "command": "uv.upgradeDependencies",
-        "title": "PPM: Upgrade Dependencies to the latest",
+        "title": "PyPkgMan: Upgrade Dependencies to the latest",
         "category": "UV"
       },
       {
         "command": "uv.manageVirtualEnv",
-        "title": "PPM: Create Virtual Environment",
+        "title": "PyPkgMan: Create Virtual Environment",
         "category": "UV"
       },
       {
         "command": "uv.runScript",
-        "title": "PPM: Run Python Script",
+        "title": "PyPkgMan: Run Python Script",
         "category": "UV"
       },
       {
         "command": "uv.addScriptDependency",
-        "title": "PPM: Add Script Dependency",
+        "title": "PyPkgMan: Add Script Dependency",
         "category": "UV"
       },
       {
         "command": "uv.installPython",
-        "title": "PPM: Install Python Version",
+        "title": "PyPkgMan: Install Python Version",
         "category": "UV"
       },
       {
         "command": "uv.pinPython",
-        "title": "PPM: Pin Python Version",
+        "title": "PyPkgMan: Pin Python Version",
         "category": "UV"
       },
       {
         "command": "uv.installTool",
-        "title": "PPM: Install Tool",
+        "title": "PyPkgMan: Install Tool",
         "category": "UV"
       },
       {
         "command": "uv.runTool",
-        "title": "PPM: Run Tool with UVX",
+        "title": "PyPkgMan: Run Tool with UVX",
         "category": "UV"
       },
       {
         "command": "uv.add",
-        "title": "PPM: Add Package to Project",
+        "title": "PyPkgMan: Add Package to Project",
         "category": "UV"
       },
       {
         "command": "uv.init",
-        "title": "PPM: Initialize Project",
+        "title": "PyPkgMan: Initialize Project",
         "category": "UV"
       },
       {
         "command": "uv.sync",
-        "title": "PPM: Sync Dependencies",
+        "title": "PyPkgMan: Sync Dependencies",
         "category": "UV"
       },
       {
         "command": "uv.upgrade",
-        "title": "PPM: Upgrade Packages",
+        "title": "PyPkgMan: Upgrade Packages",
         "category": "UV"
       },
       {
         "command": "uv.cache.clean",
-        "title": "PPM: Clean Cache",
+        "title": "PyPkgMan: Clean Cache",
         "category": "UV"
       },
       {
         "command": "uv.removePackage",
-        "title": "PPM: Remove Package from pyproject.toml",
+        "title": "PyPkgMan: Remove Package from pyproject.toml",
         "category": "UV"
       },
       {
         "command": "uv.searchPackage",
-        "title": "PPM: Search Package on PyPI",
+        "title": "PyPkgMan: Search Package on PyPI",
         "category": "UV"
       },
       {
         "command": "uv.generateLock",
-        "title": "PPM: Generate Lock File",
+        "title": "PyPkgMan: Generate Lock File",
         "category": "UV"
       },
       {
         "command": "uv.upgradeDependencies",
-        "title": "PPM: Upgrade Dependencies to the latest",
+        "title": "PyPkgMan: Upgrade Dependencies to the latest",
         "category": "UV"
       },
       {
         "command": "uv.manageVirtualEnv",
-        "title": "PPM: Create Virtual Environment",
+        "title": "PyPkgMan: Create Virtual Environment",
         "category": "UV"
       },
       {
         "command": "uv.runScript",
-        "title": "PPM: Run Python Script",
+        "title": "PyPkgMan: Run Python Script",
         "category": "UV"
       },
       {
         "command": "uv.addScriptDependency",
-        "title": "PPM: Add Script Dependency",
+        "title": "PyPkgMan: Add Script Dependency",
         "category": "UV"
       },
       {
         "command": "uv.installPython",
-        "title": "PPM: Install Python Version",
+        "title": "PyPkgMan: Install Python Version",
         "category": "UV"
       },
       {
         "command": "uv.pinPython",
-        "title": "PPM: Pin Python Version",
+        "title": "PyPkgMan: Pin Python Version",
         "category": "UV"
       },
       {
         "command": "uv.installTool",
-        "title": "PPM: Install Tool",
+        "title": "PyPkgMan: Install Tool",
         "category": "UV"
       },
       {
         "command": "uv.runTool",
-        "title": "PPM: Run Tool with UVX",
+        "title": "PyPkgMan: Run Tool with UVX",
         "category": "UV"
       },
       {
         "command": "uv.add",
-        "title": "PPM: Add Package to Project",
+        "title": "PyPkgMan: Add Package to Project",
         "category": "UV"
       },
       {
