@@ -73,21 +73,41 @@ See the full usage guide in `docs/USAGE.md` but common actions include:
 
 Full commands list and configuration keys are documented in `docs/COMMANDS.md` and `docs/USAGE.md`. Key configuration keys include:
 
-- `pypiAssistant.codeLens` (boolean) — enable CodeLens for pip/pyproject files.
-- `positronPythonPackageManager.enableVersionDecorations` (boolean) — show up-to-date/outdated decorations.
-- `inlinePythonPackageInstaller.autoInstall` (boolean) — install missing modules automatically.
-- `inlinePythonPackageInstaller.customPipCommand` (string) — custom pip command to use for installs.
+- `pypiAssistant.codeLens`  
+  _(boolean, default: `false`)_  
+  Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files.
 
-## Contributing
+- `positronPythonPackageManager.enableVersionDecorations`  
+  _(boolean, default: `false`)_  
+  Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files
 
-See `docs/CONTRIBUTING.md` for development setup, tests, and contribution workflow. The project is MIT-licensed. Please follow the existing code style and run `npm run lint` before submitting PRs.
+- `inlinePythonPackageInstaller.autoInstall`
+  _(boolean, default: `false`)_
+  Automatically install missing Python modules without prompting.
 
-## Troubleshooting
+- `inlinePythonPackageInstaller.customPipCommand`
+  _(boolean, default: `pip install`)_
+  Custom pip command to use for installing modules.
 
-- If the extension cannot determine the Python interpreter, ensure a Python extension/runtime is active in Positron and that the path is valid.
-- For Windows, the extension attempts to map virtualenv `bin` paths to `Scripts` if necessary.
+You can configure this setting in your VS Code settings (`settings.json`) or through the Settings UI.
 
-## Credits
+---
+
+## ⚠️ Known Issues
+
+- Refresh package view will print the commmand and result into console
+- Clicking on package's name doesn't show its documentation in Help pane due to the different in package name and module imported. For example, the package name is pyjanitor but it is imported as `import janitor`
+
+---
+
+## 💡 Future Ideas
+
+- [ ] Update package to a specific version
+- [ ] Provide multiple way to install packages from .whl, .tar.gz file
+
+---
+
+## 🙏 Attribution
 
 Created by [ntluong95](https://github.com/ntluong95). Licensed under the MIT License.
 
