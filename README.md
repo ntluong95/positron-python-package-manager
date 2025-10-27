@@ -51,12 +51,65 @@ This extension provides the following setting:
 - `inlinePythonPackageInstaller.autoInstall`: _(boolean, default: `false`)_
   Automatically install missing Python modules without prompting.
 
-- `inlinePythonPackageInstaller.customPipCommand`: _(string, default: `pip install`)_
   Custom pip command to use for installing modules.
 
 You can configure this setting in your VS Code settings (`settings.json`) or through the Settings UI.
 
 ---
+
+## 🔧 Customizing the installer command
+
+PPM lets you customize how the quick-fix installer runs via the workspace setting `inlinePythonPackageInstaller.customPipCommand` (default: `pip install`). The extension supports two template placeholders:
+
+- `{python}` — replaced with the resolved Python interpreter path (PowerShell-safe on Windows). Use this when you need the interpreter inserted into the command explicitly.
+- `{module}` — replaced with the package/module name being installed.
+
+Examples
+
+- Default (recommended):
+
+  ```json
+  "inlinePythonPackageInstaller.customPipCommand": "pip install"
+  ```
+
+  This runs: `"<interpreter>" -m pip install <module>` so the install targets the active interpreter.
+
+- Add flags (still using pip through the interpreter):
+
+  ```json
+  "inlinePythonPackageInstaller.customPipCommand": "pip install --upgrade"
+  ```
+
+  Runs: `"<interpreter>" -m pip install --upgrade <module>`
+
+- Use the interpreter directly (full control):
+
+  ```json
+  "inlinePythonPackageInstaller.customPipCommand": "{python} -m pip install --no-cache-dir {module}"
+  ```
+
+  Runs exactly what you specify, replacing `{python}` and `{module}`.
+
+- Poetry (direct CLI):
+
+  ```json
+  "inlinePythonPackageInstaller.customPipCommand": "poetry add {module} --dev"
+  ```
+
+  Runs `poetry add <module> --dev` directly; make sure `poetry` is on PATH or provide a full path.
+
+- Conda (direct CLI):
+
+  ```json
+  "inlinePythonPackageInstaller.customPipCommand": "conda install -y {module}"
+  ```
+
+Notes and caveats
+
+- If you pick a direct CLI (poetry/conda/uv), the command runs as-is in the integrated terminal — ensure the tool is available on PATH in the shell used by the terminal.
+- For shells that require activation (e.g., conda activate), prefer using `{python}` to target the interpreter or configure an activation+install template that works in a non-interactive integrated terminal.
+- On Windows, the extension injects the interpreter using PowerShell-friendly quoting (e.g. `& "C:\\path\\to\\python.exe"`).
+- If you need a very custom environment setup (activation, shell functions), consider creating a small wrapper script that performs activation then runs the install, and point `customPipCommand` to that script.
 
 ## ⚠️ Known Issues
 

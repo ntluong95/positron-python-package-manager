@@ -136,12 +136,81 @@ export function activate(context: vscode.ExtensionContext) {
       // Read settings for auto-install and custom pip command
       const autoInstall = config.get<boolean>("autoInstall", false);
 
-      // Build an install command using the active interpreter, so that its pip is used.
+      // Build an install command using the active interpreter, but consult
+      // the user's custom pip command setting if present.
+      // The `inlinePythonPackageInstaller.customPipCommand` setting is expected
+      // to be a pip-style command, e.g. `pip install` (default). If the value
+      // contains the placeholder `{python}` it will be replaced with the
+      // interpreter path (PowerShell-friendly on Windows). Otherwise we run
+      // the configured command through the active interpreter using
+      // `python -m <customCmd>` to ensure the interpreter's pip is used.
+      const customPipCommand = config.get<string>(
+        "customPipCommand",
+        "pip install"
+      );
+
       let installCommand: string;
-      if (process.platform === "win32") {
-        installCommand = `& "${pythonPath}" -m pip install ${moduleName}`;
+      // Prefer the adjusted actual interpreter path (Windows bin -> Scripts fix)
+      const interpreterPath = actualPythonPath || pythonPath;
+
+      // Support a few common scenarios for custom commands:
+      // 1) A template containing `{python}` — we replace it with the resolved
+      //    interpreter path (PowerShell-safe on Windows) and then inject the
+      //    module name (or use `{module}` if provided).
+      // 2) A direct CLI (e.g. `conda install`, `poetry add`, `uv add`) — run
+      //    the command directly and append/replace `{module}` as needed.
+      // 3) A normal pip-style command (default) — run it through the active
+      //    interpreter as `python -m <cmd> <module>` to ensure the target env
+      //    is used.
+
+      const cmdTemplate = customPipCommand.trim();
+      const modulePlaceholder = "{module}";
+      const normalizedFirstToken = cmdTemplate.split(/\s+/)[0].toLowerCase();
+
+      const directCLIWhitelabel = new Set([
+        "conda",
+        "mamba",
+        "micromamba",
+        "poetry",
+        "uv",
+        "pipx",
+        "pipenv",
+      ]);
+
+      if (cmdTemplate.includes("{python}")) {
+        // Fully-controlled template where user dictates how python is invoked.
+        let cmd = cmdTemplate;
+        if (process.platform === "win32") {
+          cmd = cmd.replace(/\{python\}/g, `& "${interpreterPath}"`);
+        } else {
+          cmd = cmd.replace(/\{python\}/g, `"${interpreterPath}"`);
+        }
+        if (cmd.includes(modulePlaceholder)) {
+          cmd = cmd.replace(new RegExp(modulePlaceholder, "g"), moduleName);
+        } else {
+          cmd = `${cmd} ${moduleName}`;
+        }
+        installCommand = cmd.trim();
+      } else if (directCLIWhitelabel.has(normalizedFirstToken)) {
+        // Treat as a direct CLI (do not prefix with `python -m`). Respect
+        // `{module}` placeholder if provided.
+        let cmd = cmdTemplate;
+        if (cmd.includes(modulePlaceholder)) {
+          cmd = cmd.replace(new RegExp(modulePlaceholder, "g"), moduleName);
+        } else {
+          cmd = `${cmd} ${moduleName}`;
+        }
+        installCommand = cmd.trim();
       } else {
-        installCommand = `"${pythonPath}" -m pip install ${moduleName}`;
+        // Fallback: run the configured command as a module under the active
+        // interpreter. This preserves prior behavior for `pip install` and
+        // supports flags like `--upgrade`.
+        const cmd = cmdTemplate;
+        if (process.platform === "win32") {
+          installCommand = `& "${interpreterPath}" -m ${cmd} ${moduleName}`;
+        } else {
+          installCommand = `"${interpreterPath}" -m ${cmd} ${moduleName}`;
+        }
       }
 
       // Create a terminal and execute the install command.
