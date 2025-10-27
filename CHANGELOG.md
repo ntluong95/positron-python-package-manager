@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.5
+
+- Fix logo display
+
 ## 0.1.4
 
 - Update the display icons for package version status in the decorations module
