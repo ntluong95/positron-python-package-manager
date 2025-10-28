@@ -6,7 +6,7 @@ import { refreshPackages } from "./refresh";
 import { refreshOutdatedPackages } from "./update";
 import { SidebarProvider, PyPackageItem } from "./sidebar";
 import { installPackages, uninstallPackage, updatePackages } from "./install";
-import { getChangeForegroundEvent } from "./events";
+import { getChangeForegroundEvent, getLoadLibraryEvent } from "./events";
 import { getImportName, getPythonInterpreter, PyPI } from "./utils";
 import dayjs from "dayjs";
 import { ProjectNameRequirement } from "pip-requirements-js";
@@ -266,8 +266,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   // 🔥 Refresh package list on runtime/session change
   context.subscriptions.push(
-    // getRegisterRuntimeEvent(sidebarProvider),
-    getChangeForegroundEvent(sidebarProvider)
+    // getRegisterRuntimeEvent(),
+    getChangeForegroundEvent(),
+    getLoadLibraryEvent()
   );
 
   console.log("Positron Python Package Manager extension activated!");

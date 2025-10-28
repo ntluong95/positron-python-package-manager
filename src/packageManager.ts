@@ -34,7 +34,9 @@ function parsePackageLine(
     }
   } else if (languageId === "toml") {
     // Clean line
-    if (line.endsWith(",")) line = line.slice(0, -1); // Remove trailing comma
+    if (line.endsWith(",")) {
+      line = line.slice(0, -1);
+    } // Remove trailing comma
     line = line.replace(/["']/g, ""); // Remove quotes
 
     const match = line.match(
@@ -75,7 +77,9 @@ async function performVersionComparisonDecorations(
   const editor = vscode.window.visibleTextEditors.find(
     (editor) => editor.document === document
   );
-  if (!editor) return;
+  if (!editor) {
+    return;
+  }
 
   // Clear existing decorations immediately for better UX
   editor.setDecorations(outdatedDecorationType, []);
