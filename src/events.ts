@@ -62,3 +62,50 @@ export function getLoadLibraryEvent(): vscode.Disposable {
 
   return LoadLibraryEvent;
 }
+
+/**
+ * Returns a disposable that listens for Python interpreter changes.
+ *
+ * When the user changes the active Python interpreter (via the Python extension),
+ * this event handler triggers a refresh of the Python package list in the sidebar
+ * to reflect the packages available in the new environment.
+ *
+ * @returns {vscode.Disposable} A disposable that unregisters the event listener.
+ */
+export async function getPythonInterpreterChangeEvent(): Promise<vscode.Disposable> {
+  const pythonExtension = vscode.extensions.getExtension("ms-python.python");
+
+  if (!pythonExtension) {
+    console.warn(
+      "Python extension not found. Interpreter change listener not registered."
+    );
+    return { dispose: () => {} };
+  }
+
+  // Ensure Python extension is activated
+  if (!pythonExtension.isActive) {
+    await pythonExtension.activate();
+  }
+
+  // Access the Python extension API
+  const pythonApi = pythonExtension.exports;
+
+  // Check if the environments API is available
+  if (pythonApi?.environments?.onDidChangeActiveEnvironmentPath) {
+    console.log("Registering Python interpreter change listener");
+
+    const changeEvent = pythonApi.environments.onDidChangeActiveEnvironmentPath(
+      () => {
+        console.log("Python interpreter changed, refreshing packages...");
+        vscode.commands.executeCommand(
+          "positron-python-package-manager.refreshPackages"
+        );
+      }
+    );
+
+    return changeEvent;
+  } else {
+    console.warn("Python extension API for environment changes not available");
+    return { dispose: () => {} };
+  }
+}

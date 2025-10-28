@@ -6,7 +6,11 @@ import { refreshPackages } from "./refresh";
 import { refreshOutdatedPackages } from "./update";
 import { SidebarProvider, PyPackageItem } from "./sidebar";
 import { installPackages, uninstallPackage, updatePackages } from "./install";
-import { getChangeForegroundEvent, getLoadLibraryEvent } from "./events";
+import {
+  getChangeForegroundEvent,
+  getLoadLibraryEvent,
+  getPythonInterpreterChangeEvent,
+} from "./events";
 import { getImportName, getPythonInterpreter, PyPI } from "./utils";
 import dayjs from "dayjs";
 import { ProjectNameRequirement } from "pip-requirements-js";
@@ -35,6 +39,11 @@ import { addVersionComparisonDecorations } from "./packageManager";
 export function activate(context: vscode.ExtensionContext) {
   initializeDecoration();
   registerCommands(context);
+
+  // Register Python interpreter change listener (async)
+  getPythonInterpreterChangeEvent().then((disposable) => {
+    context.subscriptions.push(disposable);
+  });
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument(async (document) => {
