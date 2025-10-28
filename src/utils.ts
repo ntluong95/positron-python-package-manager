@@ -85,9 +85,21 @@ export async function getPythonInterpreter(): Promise<string | undefined> {
 }
 
 export function getImportName(packageName: string): string {
-  //TODO: WIP
-  // This only list packages with package's name different with import name
-  // Python module import can be in my variation and unpredict
+  // Check user-defined custom import mappings first
+  const config = vscode.workspace.getConfiguration(
+    "positron-python-package-manager"
+  );
+  const customMappings = config.get<Record<string, string>>(
+    "customImportMappings",
+    {}
+  );
+
+  if (customMappings[packageName]) {
+    return customMappings[packageName];
+  }
+
+  // Fall back to built-in mappings
+  // This list contains packages with package names different from import names
   const mappings: Record<string, string> = {
     beautifulsoup4: "bs4",
     boto3: "boto3",

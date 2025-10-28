@@ -405,6 +405,141 @@ export function activate(context: vscode.ExtensionContext) {
           `Version decorations ${!currentValue ? "enabled" : "disabled"}`
         );
       }
+    ),
+
+    vscode.commands.registerCommand(
+      "positron-python-package-manager.addCustomImport",
+      async (item: PyPackageItem | undefined) => {
+        if (!item) {
+          vscode.window.showErrorMessage("No package selected");
+          return;
+        }
+
+        const packageName = item.pkg.name;
+        const config = vscode.workspace.getConfiguration(
+          "positron-python-package-manager"
+        );
+        const customImports = config.get<Record<string, string>>(
+          "customImportCommands",
+          {}
+        );
+
+        const currentCustom =
+          customImports[packageName] || `import ${getImportName(packageName)}`;
+
+        const importCommand = await vscode.window.showInputBox({
+          prompt: `Enter custom import command for ${packageName}`,
+          placeHolder: "e.g., import numpy as np",
+          value: currentCustom,
+          validateInput: (value) => {
+            if (!value || value.trim() === "") {
+              return "Import command cannot be empty";
+            }
+            if (
+              !value.trim().startsWith("import") &&
+              !value.trim().startsWith("from")
+            ) {
+              return 'Import command should start with "import" or "from"';
+            }
+            return null;
+          },
+        });
+
+        if (importCommand) {
+          const updatedCustomImports = {
+            ...customImports,
+            [packageName]: importCommand,
+          };
+          await config.update(
+            "customImportCommands",
+            updatedCustomImports,
+            vscode.ConfigurationTarget.Global
+          );
+          vscode.window.showInformationMessage(
+            `Custom import set for ${packageName}: ${importCommand}`
+          );
+        }
+      }
+    ),
+
+    vscode.commands.registerCommand(
+      "positron-python-package-manager.saveImportAsCustom",
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        const selection = editor.selection;
+        const selectedText = editor.document.getText(selection).trim();
+
+        // Try to extract import statement from selection or current line
+        let importStatement = selectedText;
+        if (
+          !importStatement ||
+          (!importStatement.startsWith("import") &&
+            !importStatement.startsWith("from"))
+        ) {
+          const line = editor.document.lineAt(selection.active.line);
+          importStatement = line.text.trim();
+        }
+
+        if (
+          !importStatement.startsWith("import") &&
+          !importStatement.startsWith("from")
+        ) {
+          vscode.window.showErrorMessage(
+            "Please select or place cursor on an import statement"
+          );
+          return;
+        }
+
+        // Try to extract package name from import statement
+        let packageName = "";
+        const importMatch = importStatement.match(/^import\s+(\S+)/);
+        const fromMatch = importStatement.match(/^from\s+(\S+)\s+import/);
+
+        if (importMatch) {
+          packageName = importMatch[1].split(".")[0];
+        } else if (fromMatch) {
+          packageName = fromMatch[1].split(".")[0];
+        }
+
+        if (!packageName) {
+          packageName =
+            (await vscode.window.showInputBox({
+              prompt: "Enter the package name for this import",
+              placeHolder: "e.g., numpy, pandas, sklearn",
+            })) || "";
+        }
+
+        if (!packageName) {
+          return;
+        }
+
+        const config = vscode.workspace.getConfiguration(
+          "positron-python-package-manager"
+        );
+        const customImports = config.get<Record<string, string>>(
+          "customImportCommands",
+          {}
+        );
+        const updatedCustomImports = {
+          ...customImports,
+          [packageName]: importStatement,
+        };
+
+        await config.update(
+          "customImportCommands",
+          updatedCustomImports,
+          vscode.ConfigurationTarget.Global
+        );
+
+        vscode.window.showInformationMessage(
+          `Saved custom import for ${packageName}: ${importStatement}`
+        );
+      }
     )
   );
 

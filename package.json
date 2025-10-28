@@ -82,6 +82,22 @@
             "python3 -m pip install"
           ],
           "description": "Custom command to use for installing packages. Example options shown below (default: 'uv add'). You can also include flags or full templates, e.g. 'uv add --dev', 'poetry add --dev', 'conda install -c conda-forge <package>', or 'python -m pip install --user --upgrade <package>'."
+        },
+        "positron-python-package-manager.customImportMappings": {
+          "type": "object",
+          "default": {},
+          "description": "Custom mappings from package names to import names. For example: {\"beautifulsoup4\": \"bs4\", \"pillow\": \"PIL\"}. This overrides built-in mappings.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "positron-python-package-manager.customImportCommands": {
+          "type": "object",
+          "default": {},
+          "description": "Custom import commands for specific packages. For example: {\"numpy\": \"import numpy as np\", \"pandas\": \"import pandas as pd\"}. This allows you to define the exact import statement to execute when checking a package.",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
@@ -266,6 +282,14 @@
           "rightTitle": "Show",
           "toggled": "config.positronPythonPackageManager.enableVersionDecorations"
         }
+      },
+      {
+        "command": "positron-python-package-manager.addCustomImport",
+        "title": "PyPkgMan: Set Custom Import for Package"
+      },
+      {
+        "command": "positron-python-package-manager.saveImportAsCustom",
+        "title": "PyPkgMan: Save Import Statement as Custom"
       }
     ],
     "viewsContainers": {
@@ -345,6 +369,11 @@
       ],
       "editor/context": [
         {
+          "command": "positron-python-package-manager.saveImportAsCustom",
+          "when": "editorLangId == python && editorTextFocus",
+          "group": "pypkgman@1"
+        },
+        {
           "when": "resourceFilename == pyproject.toml",
           "command": "uv.add",
           "group": "uv"
@@ -402,6 +431,11 @@
           "command": "positron-python-package-manager.updatePackage",
           "when": "view == pythonPackageView && viewItem == canUpdate",
           "group": "inline"
+        },
+        {
+          "command": "positron-python-package-manager.addCustomImport",
+          "when": "view == pythonPackageView && viewItem =~ /PyPackage|canUpdate/",
+          "group": "custom@1"
         }
       ]
     }
