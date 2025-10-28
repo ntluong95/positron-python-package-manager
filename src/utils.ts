@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as positron from "positron";
 import * as fs from "fs";
+import { join } from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { PackageMetadata } from "./extension";
@@ -84,9 +85,21 @@ export async function getPythonInterpreter(): Promise<string | undefined> {
 }
 
 export function getImportName(packageName: string): string {
-  //TODO: WIP
-  // This only list packages with package's name different with import name
-  // Python module import can be in my variation and unpredict
+  // Check user-defined custom import mappings first
+  const config = vscode.workspace.getConfiguration(
+    "positron-python-package-manager"
+  );
+  const customMappings = config.get<Record<string, string>>(
+    "customImportMappings",
+    {}
+  );
+
+  if (customMappings[packageName]) {
+    return customMappings[packageName];
+  }
+
+  // Fall back to built-in mappings
+  // This list contains packages with package names different from import names
   const mappings: Record<string, string> = {
     beautifulsoup4: "bs4",
     boto3: "boto3",
@@ -118,29 +131,6 @@ export function getImportName(packageName: string): string {
   };
 
   return mappings[packageName] || packageName;
-}
-
-export async function waitForFile(
-  filePath: string,
-  timeout = 1000
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-
-    const interval = setInterval(() => {
-      if (fs.existsSync(filePath)) {
-        clearInterval(interval);
-        resolve();
-      } else if (Date.now() - start > timeout) {
-        clearInterval(interval);
-        const error = new Error(
-          vscode.l10n.t("Timeout waiting for file: {0}", filePath)
-        );
-        vscode.window.showErrorMessage(error.message);
-        reject(error);
-      }
-    }, 100);
-  });
 }
 
 /** Fetching package metadata with a caching layer. */
@@ -193,5 +183,63 @@ export class PyPI {
 
   public clear() {
     this.cache.clear();
+  }
+}
+
+/**
+ * Waits for a file to appear in the file system, periodically checking for its
+ * existence until a timeout is reached or the file is found.
+ * @param filePath The path to the file to wait for.
+ * @param timeout The maximum time to wait for the file to appear, in milliseconds.
+ * @returns A promise that resolves when the file is found or rejects when the
+ * timeout is reached.
+ */
+export async function waitForFile(
+  filePath: string,
+  timeout = 1000
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    const interval = setInterval(() => {
+      if (fs.existsSync(filePath)) {
+        clearInterval(interval);
+        resolve();
+      } else if (Date.now() - start > timeout) {
+        clearInterval(interval);
+        const error = new Error(
+          vscode.l10n.t("Timeout waiting for file: {0}", filePath)
+        );
+        vscode.window.showErrorMessage(error.message);
+        reject(error);
+      }
+    }, 100);
+  });
+}
+
+/**
+ * Checks if a given library path is writeable by attempting to write a temporary
+ * file in the directory and then deleting it. If the operation is successful, the
+ * function returns true; otherwise, it returns false.
+ * @param libPath The path to check for writeability.
+ * @returns true if the library path is writeable; otherwise, false.
+ */
+export function isLibPathWriteable(libPath: string): boolean {
+  try {
+    const stat = fs.statSync(libPath);
+    if (!stat.isDirectory()) {
+      return false;
+    }
+  } catch {
+    return false; // path doesn’t exist or is inaccessible
+  }
+
+  const probe = join(libPath, `.__write_test_${process.pid}_${Date.now()}`);
+  try {
+    fs.writeFileSync(probe, "ok");
+    fs.unlinkSync(probe);
+    return true;
+  } catch {
+    return false;
   }
 }

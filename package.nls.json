@@ -8,5 +8,6 @@
   "update.packages": "PyPkgMan: Update Installed Packages",
   "refresh.packages": "PyPkgMan: Refresh package information",
   "search.packages": "PyPkgMan: Search for installed packages",
-  "packages": "Packages"
+  "packages": "Packages",
+  "filterLoadedPackages": "PyPkgMan: Show loaded packages"
 }

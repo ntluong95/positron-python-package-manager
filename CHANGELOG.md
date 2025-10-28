@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.6
+
+- Add support for custom import commands for packages, See [CUSTOM_IMPORTS.md](docs/CUSTOM_IMPORTS.md) for details
+- Add command to filter loaded packages in the sidebar
+- Bug fixes: sidebar does not refresh automatically after interpreter change
+
 ## 0.1.5
 
 - Fix logo display

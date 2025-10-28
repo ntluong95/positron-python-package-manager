@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { refreshPackages } from './refresh';
-import {getPythonInterpreter } from './utils';
+import {getPythonInterpreter, isLibPathWriteable } from './utils';
 import { PyPackageItem, SidebarProvider } from './sidebar';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
@@ -60,6 +60,23 @@ async function customInstallPackages(sidebarProvider: SidebarProvider): Promise<
     if (!pythonExec) {
         vscode.window.showErrorMessage('No active Python interpreter found.');
         return;
+    }
+
+    // Check if the site-packages directory is writeable
+    try {
+        const { stdout } = await execFilePromise(pythonExec, ['-c', 'import site; print(site.getsitepackages()[0])']);
+        const sitePackagesPath = stdout.trim();
+        
+        if (!isLibPathWriteable(sitePackagesPath)) {
+            vscode.window.showErrorMessage(
+                `❌ Cannot write to site-packages directory: ${sitePackagesPath}. ` +
+                'You may need administrator/sudo privileges or use a virtual environment.'
+            );
+            return;
+        }
+    } catch (err: any) {
+        console.warn('Could not verify site-packages writability:', err);
+        // Continue with installation attempt
     }
 
     const packages = packageName.trim().split(/\s+/);
@@ -127,6 +144,23 @@ export async function uninstallPackage(item: PyPackageItem | undefined, sidebarP
         return;
     }
 
+    // Check if the site-packages directory is writeable
+    try {
+        const { stdout } = await execFilePromise(pythonExec, ['-c', 'import site; print(site.getsitepackages()[0])']);
+        const sitePackagesPath = stdout.trim();
+        
+        if (!isLibPathWriteable(sitePackagesPath)) {
+            vscode.window.showErrorMessage(
+                `❌ Cannot write to site-packages directory: ${sitePackagesPath}. ` +
+                'You may need administrator/sudo privileges or use a virtual environment.'
+            );
+            return;
+        }
+    } catch (err: any) {
+        console.warn('Could not verify site-packages writability:', err);
+        // Continue with uninstallation attempt
+    }
+
     try {
         // 🚀 Run pip uninstall silently
         await execFilePromise(pythonExec, ['-m', 'pip', 'uninstall', '-y', item.pkg.name]);
@@ -159,6 +193,23 @@ export async function updatePackages(item: PyPackageItem | undefined, sidebarPro
     if (!pythonExec) {
         vscode.window.showErrorMessage('⚠️ No active Python interpreter found.');
         return;
+    }
+
+    // Check if the site-packages directory is writeable
+    try {
+        const { stdout } = await execFilePromise(pythonExec, ['-c', 'import site; print(site.getsitepackages()[0])']);
+        const sitePackagesPath = stdout.trim();
+        
+        if (!isLibPathWriteable(sitePackagesPath)) {
+            vscode.window.showErrorMessage(
+                `❌ Cannot write to site-packages directory: ${sitePackagesPath}. ` +
+                'You may need administrator/sudo privileges or use a virtual environment.'
+            );
+            return;
+        }
+    } catch (err: any) {
+        console.warn('Could not verify site-packages writability:', err);
+        // Continue with update attempt
     }
 
     try {
