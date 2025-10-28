@@ -2,13 +2,13 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
     "url": "https://github.com/ntluong95/positron-python-package-manager.git"
   },
-  "icon": "resources/icon2.png",
+  "icon": "resources/vscode-icon-128.png",
   "license": "MIT",
   "extensionKind": [
     "workspace"
