@@ -14,6 +14,10 @@ export interface PyPackageInfo {
   title: string;
   loaded: boolean;
   tooltip?: string;
+  size?: string;
+  pythonRequires?: string;
+  homepage?: string;
+  summary?: string;
 }
 
 export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
@@ -138,6 +142,23 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
     this.showOnlyLoadedPackages = !this.showOnlyLoadedPackages;
     this._onDidChangeTreeData.fire();
   }
+
+  private getLocationBadge(locationType: string): {
+    emoji: string;
+    label: string;
+  } {
+    const type = locationType.toLowerCase();
+    if (type.includes("venv") || type.includes("virtual")) {
+      return { emoji: "📦", label: "Virtual Env" };
+    } else if (type.includes("conda")) {
+      return { emoji: "🐍", label: "Conda" };
+    } else if (type.includes("global") || type.includes("system")) {
+      return { emoji: "🌐", label: "System" };
+    } else if (type.includes("dev") || type.includes("editable")) {
+      return { emoji: "🔧", label: "Dev" };
+    }
+    return { emoji: "📂", label: locationType };
+  }
 }
 
 // The UI how it looks
@@ -153,7 +174,21 @@ export class PyPackageItem extends vscode.TreeItem {
       versionText = `${currentVersion} ⭡ ${latestVersion}`;
     }
 
-    this.description = `${versionText} (${pkg.locationtype})`;
+    // Get location badge
+    const locationBadge = this.getLocationBadge(pkg.locationtype);
+
+    // Build enhanced description with badges
+    let descriptionParts: string[] = [versionText];
+
+    // Add location badge
+    descriptionParts.push(`${locationBadge.emoji} ${locationBadge.label}`);
+
+    // Add size if available
+    if (pkg.size) {
+      descriptionParts.push(`📊 ${pkg.size}`);
+    }
+
+    this.description = descriptionParts.join(" • ");
 
     this.contextValue =
       latestVersion && latestVersion !== currentVersion
@@ -188,20 +223,57 @@ export class PyPackageItem extends vscode.TreeItem {
 
     // this.tooltip = pkg.tooltip ?? pkg.title;
     const tooltipContent = new vscode.MarkdownString();
-    tooltipContent.appendMarkdown(`${pkg.name} v${pkg.version}\n`);
-    tooltipContent.appendMarkdown(`Location: ${pkg.locationtype}\n\n`);
-    tooltipContent.appendMarkdown(`${pkg.tooltip ?? ""}\n\n`);
+
+    // Header with package name and version
+    tooltipContent.appendMarkdown(`## ${pkg.name} v${pkg.version}\n\n`);
+
+    // Add summary if available
+    if (pkg.summary) {
+      tooltipContent.appendMarkdown(`*${pkg.summary}*\n\n`);
+    }
+
+    tooltipContent.appendMarkdown(`---\n\n`);
+
+    // Location with badge
     tooltipContent.appendMarkdown(
-      `[View on PyPI](https://pypi.org/project/${pkg.name}/)\n`
+      `**Location:** ${locationBadge.emoji} ${locationBadge.label}\n\n`
     );
+
+    // Python version requirements
+    if (pkg.pythonRequires) {
+      tooltipContent.appendMarkdown(
+        `**Python Required:** 🐍 ${pkg.pythonRequires}\n\n`
+      );
+    }
+
+    // Package size
+    if (pkg.size) {
+      tooltipContent.appendMarkdown(`**Size:** 📊 ${pkg.size}\n\n`);
+    }
+
+    // Import info or custom tooltip
+    if (pkg.tooltip) {
+      tooltipContent.appendMarkdown(`**Info:** ${pkg.tooltip}\n\n`);
+    }
 
     if (pkg.loaded) {
       const importName = getImportName(pkg.name);
       tooltipContent.appendMarkdown(
-        `\nImported as: ${
-          importName === pkg.name ? `[${pkg.name}]` : importName
-        }`
+        `**Imported as:** ✅ ${
+          importName === pkg.name ? `\`${pkg.name}\`` : `\`${importName}\``
+        }\n\n`
       );
+    }
+
+    tooltipContent.appendMarkdown(`---\n\n`);
+
+    // Links
+    tooltipContent.appendMarkdown(
+      `[📦 View on PyPI](https://pypi.org/project/${pkg.name}/)`
+    );
+
+    if (pkg.homepage) {
+      tooltipContent.appendMarkdown(` • [🏠 Homepage](${pkg.homepage})`);
     }
 
     this.tooltip = tooltipContent;
@@ -212,6 +284,23 @@ export class PyPackageItem extends vscode.TreeItem {
       title: vscode.l10n.t("Open Package Help"),
       arguments: [pkg.name],
     };
+  }
+
+  private getLocationBadge(locationType: string): {
+    emoji: string;
+    label: string;
+  } {
+    const type = locationType.toLowerCase();
+    if (type.includes("venv") || type.includes("virtual")) {
+      return { emoji: "📦", label: "Virtual Env" };
+    } else if (type.includes("conda")) {
+      return { emoji: "🐍", label: "Conda" };
+    } else if (type.includes("global") || type.includes("system")) {
+      return { emoji: "🌐", label: "System" };
+    } else if (type.includes("dev") || type.includes("editable")) {
+      return { emoji: "🔧", label: "Dev" };
+    }
+    return { emoji: "📂", label: locationType };
   }
 }
 
