@@ -10,7 +10,8 @@ Manage Python packages directly inside Positron IDE, a fork of VSCode. PyPkgMan 
 
 - ✅ 🔍 View all **installed packages** and **loaded packages** in a tidy sidebar. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
 - ✅ 🚀 **Install** and **Uninstall** packages directly from pane with a single click
-- ✅ 🔍 **Search** installed packages by name or title (fuzzy search supported)
+- ✅ � **Multiple installation sources**: Install packages from PyPI, GitHub repositories, or local archives (.whl, .tar.gz, .zip)
+- ✅ �🔍 **Search** installed packages by name or title (fuzzy search supported)
 - ✅ ⚙️ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
 - ✅ 💡 Provides quick-fix actions to install missing packages
 
@@ -66,7 +67,6 @@ You can configure this setting in your VS Code settings (`settings.json`) or thr
 ## 💡 Future Ideas
 
 - [ ] Update package to a specific version
-- [ ] Provide multiple way to install packages from .whl, .tar.gz file
 
 ---
 
