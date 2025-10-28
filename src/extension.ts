@@ -549,6 +549,13 @@ export function activate(context: vscode.ExtensionContext) {
           `Saved custom import for ${packageName}: ${importStatement}`
         );
       }
+    ),
+
+    vscode.commands.registerCommand(
+      "positron-python-package-manager.filterLoadedPackages",
+      () => {
+        sidebarProvider.toggleShowOnlyLoadedPackages();
+      }
     )
   );
 

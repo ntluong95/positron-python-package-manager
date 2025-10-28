@@ -18,6 +18,7 @@ export interface PyPackageInfo {
 
 export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
   private filterText: string = "";
+  private showOnlyLoadedPackages: boolean = false;
   private _onDidChangeTreeData: vscode.EventEmitter<
     PyPackageItem | undefined | void
   > = new vscode.EventEmitter();
@@ -42,14 +43,20 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
   getChildren(): Thenable<PyPackageItem[]> {
     let filtered: PyPackageInfo[] = this.packages;
 
+    // Apply showOnlyLoadedPackages filter first
+    if (this.showOnlyLoadedPackages) {
+      filtered = this.filterLoadedPackages(filtered);
+    }
+
+    // Then apply text filter if present
     if (this.filterText.trim()) {
-      const enriched = this.packages.map((pkg) => ({
+      const enriched = filtered.map((pkg) => ({
         pkg,
         query: `${pkg.name} ${pkg.title}`,
       }));
 
       if (this.filterText.trim() === "loaded") {
-        filtered = this.filterLoadedPackages(this.packages);
+        filtered = this.filterLoadedPackages(filtered);
       } else {
         const matches = filter(enriched, this.filterText.trim(), {
           key: "query",
@@ -125,6 +132,11 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
 
   getPackages(): PyPackageInfo[] {
     return this.packages;
+  }
+
+  toggleShowOnlyLoadedPackages() {
+    this.showOnlyLoadedPackages = !this.showOnlyLoadedPackages;
+    this._onDidChangeTreeData.fire();
   }
 }
 

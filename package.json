@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/ntluong95/positron-python-package-manager.git"
   },
-  "icon": "resources/vscode-icon-128.png",
+  "icon": "resources/vscode-icon-128_new.png",
   "license": "MIT",
   "extensionKind": [
     "workspace"
@@ -290,6 +290,11 @@
       {
         "command": "positron-python-package-manager.saveImportAsCustom",
         "title": "PyPkgMan: Save Import Statement as Custom"
+      },
+      {
+        "command": "positron-python-package-manager.filterLoadedPackages",
+        "title": "%filterLoadedPackages%",
+        "icon": "$(filter)"
       }
     ],
     "viewsContainers": {
@@ -409,6 +414,11 @@
           "command": "positron-python-package-manager.checkOutdatedPackages",
           "when": "view == pythonPackageView",
           "group": "navigation@2"
+        },
+        {
+          "command": "positron-python-package-manager.filterLoadedPackages",
+          "when": "view == pythonPackageView",
+          "group": "navigation@3"
         },
         {
           "command": "positron-python-package-manager.searchPackages",
