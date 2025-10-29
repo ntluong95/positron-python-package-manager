@@ -35,10 +35,10 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         undefined,
         positron.RuntimeCodeExecutionMode.Silent
       );
-      
+
       await waitForFile(tmpPath);
       const contents = fs.readFileSync(tmpPath, 'utf-8');
-    
+
       let parsed: any;
       try {
         parsed = JSON.parse(contents);
@@ -46,12 +46,12 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         console.error('Failed to parse JSON contents:', err);
         parsed = []; // fallback
       }
-    
+
       // Force parsed into array
       if (!Array.isArray(parsed)) {
         parsed = [parsed];
       }
-    
+
       console.log('Parsed Imported Packages:', parsed);
       const parsed1 = JSON.parse(parsed);
       return parsed1;
@@ -129,6 +129,29 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         ? 'Conda'
         : 'Global';
 
+    // Get package locations using a single 'pip show' call for all packages (faster)
+    const packageLocations: Record<string, string> = {};
+    try {
+      const pkgNames = pipPackages.map(p => p.name).filter(Boolean);
+      if (pkgNames.length > 0) {
+        const showCmd = `"${pythonPath}" -m pip show ${pkgNames.join(' ')}`;
+        const result = await execPromise(showCmd);
+        // pip show prints blocks separated by blank lines
+        const blocks = result.stdout.split(/\r?\n\r?\n/).map(s => s.trim()).filter(Boolean);
+        for (const blk of blocks) {
+          const nameMatch = blk.match(/^Name: (.+)$/m);
+          const locMatch = blk.match(/^Location: (.+)$/m);
+          if (nameMatch) {
+            const name = nameMatch[1].trim();
+            const loc = locMatch ? locMatch[1].trim() : '';
+            packageLocations[name] = loc;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch package locations in bulk:', err);
+    }
+
     const pkgInfo: PyPackageInfo[] = pipPackages.map(pkg => {
       //TODO Important to map mismatches package name
       const importName = getImportName(pkg.name);
@@ -136,12 +159,13 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         info.module === importName || info.alias === importName
       );
       const loaded = matchingImport !== undefined;
+      const libpath = packageLocations[pkg.name] || '';
 
       return {
         name: pkg.name,
         version: pkg.version,
         latestVersion: undefined,
-        libpath: '',
+        libpath: libpath,
         locationtype: locationType,
         title: pkg.name,
         loaded: loaded,

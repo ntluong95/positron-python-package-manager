@@ -3,6 +3,7 @@
 ## 0.1.7
 
 - Provide multiple way to install packages from .whl, .tar.gz file
+- Enhance the tooltip displaying
 
 ## 0.1.6
 

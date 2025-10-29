@@ -142,23 +142,6 @@ export class SidebarProvider implements vscode.TreeDataProvider<PyPackageItem> {
     this.showOnlyLoadedPackages = !this.showOnlyLoadedPackages;
     this._onDidChangeTreeData.fire();
   }
-
-  private getLocationBadge(locationType: string): {
-    emoji: string;
-    label: string;
-  } {
-    const type = locationType.toLowerCase();
-    if (type.includes("venv") || type.includes("virtual")) {
-      return { emoji: "📦", label: "Virtual Env" };
-    } else if (type.includes("conda")) {
-      return { emoji: "🐍", label: "Conda" };
-    } else if (type.includes("global") || type.includes("system")) {
-      return { emoji: "🌐", label: "System" };
-    } else if (type.includes("dev") || type.includes("editable")) {
-      return { emoji: "🔧", label: "Dev" };
-    }
-    return { emoji: "📂", label: locationType };
-  }
 }
 
 // The UI how it looks
@@ -221,55 +204,46 @@ export class PyPackageItem extends vscode.TreeItem {
       ? vscode.TreeItemCheckboxState.Checked
       : vscode.TreeItemCheckboxState.Unchecked;
 
-    // this.tooltip = pkg.tooltip ?? pkg.title;
+    // Build enhanced tooltip with markdown (R package template style)
     const tooltipContent = new vscode.MarkdownString();
-
-    // Header with package name and version
     tooltipContent.appendMarkdown(`## ${pkg.name} v${pkg.version}\n\n`);
 
-    // Add summary if available
     if (pkg.summary) {
       tooltipContent.appendMarkdown(`*${pkg.summary}*\n\n`);
     }
 
     tooltipContent.appendMarkdown(`---\n\n`);
-
-    // Location with badge
     tooltipContent.appendMarkdown(
       `**Location:** ${locationBadge.emoji} ${locationBadge.label}\n\n`
     );
+    tooltipContent.appendMarkdown(`**Path:** \`${pkg.libpath || 'N/A'}\`\n\n`);
 
-    // Python version requirements
     if (pkg.pythonRequires) {
       tooltipContent.appendMarkdown(
         `**Python Required:** 🐍 ${pkg.pythonRequires}\n\n`
       );
     }
 
-    // Package size
     if (pkg.size) {
       tooltipContent.appendMarkdown(`**Size:** 📊 ${pkg.size}\n\n`);
     }
 
-    // Import info or custom tooltip
+    if (pkg.loaded) {
+      const importName = getImportName(pkg.name);
+      tooltipContent.appendMarkdown(`**Status:** ✅ Loaded\n\n`);
+      tooltipContent.appendMarkdown(
+        `**Imported as:** \`${importName === pkg.name ? pkg.name : importName
+        }\`\n\n`
+      );
+    }
+
     if (pkg.tooltip) {
       tooltipContent.appendMarkdown(`**Info:** ${pkg.tooltip}\n\n`);
     }
 
-    if (pkg.loaded) {
-      const importName = getImportName(pkg.name);
-      tooltipContent.appendMarkdown(
-        `**Imported as:** ✅ ${
-          importName === pkg.name ? `\`${pkg.name}\`` : `\`${importName}\``
-        }\n\n`
-      );
-    }
-
     tooltipContent.appendMarkdown(`---\n\n`);
-
-    // Links
     tooltipContent.appendMarkdown(
-      `[📦 View on PyPI](https://pypi.org/project/${pkg.name}/)`
+      `[🏠 View on PyPI](https://pypi.org/project/${pkg.name}/)`
     );
 
     if (pkg.homepage) {
@@ -277,7 +251,7 @@ export class PyPackageItem extends vscode.TreeItem {
     }
 
     this.tooltip = tooltipContent;
-    this.tooltip.isTrusted = true;
+    tooltipContent.isTrusted = true;
 
     this.command = {
       command: "positron-python-package-manager.openHelp",
