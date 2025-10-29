@@ -145,11 +145,33 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
             const name = nameMatch[1].trim();
             const loc = locMatch ? locMatch[1].trim() : '';
             packageLocations[name] = loc;
+            console.debug(`pip show ${name}: location=${loc}`);
           }
         }
       }
     } catch (err) {
       console.warn('Failed to fetch package locations in bulk:', err);
+    }
+
+    // Fallback: for packages missing location, try individual pip show
+    const missingPackages = pipPackages
+      .filter(pkg => !packageLocations[pkg.name])
+      .map(p => p.name)
+      .slice(0, 20); // Limit to first 20 to avoid too many calls
+
+    for (const pkgName of missingPackages) {
+      try {
+        const showCmd = `"${pythonPath}" -m pip show ${pkgName}`;
+        const result = await execPromise(showCmd);
+        const locMatch = result.stdout.match(/^Location: (.+)$/m);
+        if (locMatch) {
+          const loc = locMatch[1].trim();
+          packageLocations[pkgName] = loc;
+          console.debug(`pip show fallback ${pkgName}: location=${loc}`);
+        }
+      } catch {
+        // Silent fail, will use default message below
+      }
     }
 
     const pkgInfo: PyPackageInfo[] = pipPackages.map(pkg => {
@@ -159,7 +181,19 @@ export async function refreshPackages(sidebarProvider: SidebarProvider): Promise
         info.module === importName || info.alias === importName
       );
       const loaded = matchingImport !== undefined;
-      const libpath = packageLocations[pkg.name] || '';
+
+      // Get path from pip show, fallback to descriptive labels
+      let libpath = packageLocations[pkg.name] || '';
+      if (!libpath) {
+        // Provide better fallback messages for packages without a Location
+        if (pkg.name.toLowerCase() === 'pip' ||
+          pkg.name.toLowerCase() === 'setuptools' ||
+          pkg.name.toLowerCase() === 'wheel') {
+          libpath = '(Built-in Bootstrap)';
+        } else {
+          libpath = '(Location unavailable)';
+        }
+      }
 
       return {
         name: pkg.name,

@@ -216,7 +216,14 @@ export class PyPackageItem extends vscode.TreeItem {
     tooltipContent.appendMarkdown(
       `**Location:** ${locationBadge.emoji} ${locationBadge.label}\n\n`
     );
-    tooltipContent.appendMarkdown(`**Path:** \`${pkg.libpath || 'N/A'}\`\n\n`);
+
+    // Display path with better formatting
+    const pathDisplay = pkg.libpath
+      ? pkg.libpath.startsWith('(')
+        ? pkg.libpath  // Already a descriptive message
+        : `\`${pkg.libpath}\`` // Format as code
+      : '(No location info)';
+    tooltipContent.appendMarkdown(`**Path:** ${pathDisplay}\n\n`);
 
     if (pkg.pythonRequires) {
       tooltipContent.appendMarkdown(
