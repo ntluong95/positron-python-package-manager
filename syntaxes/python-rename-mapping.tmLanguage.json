@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Python Rename Mapping Injection",
+  "scopeName": "source.python.rename-mapping.injection",
+  "injectionSelector": "L:source.python",
+  "patterns": [
+    {
+      "include": "#dictPairOldMulti"
+    },
+    {
+      "include": "#dictPairOldSingle"
+    },
+    {
+      "include": "#dictPairNewMulti"
+    },
+    {
+      "include": "#dictPairNewSingle"
+    }
+  ],
+  "repository": {
+    "dictPairOldMulti": {
+      "match": "((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=:)",
+      "captures": {
+        "1": {
+          "name": "entity.name.column.old.python string.quoted.multi.python"
+        }
+      }
+    },
+    "dictPairOldSingle": {
+      "match": "((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=:)",
+      "captures": {
+        "1": {
+          "name": "entity.name.column.old.python string.quoted.single.python"
+        }
+      }
+    },
+    "dictPairNewMulti": {
+      "match": "(:\\s*)((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=,|})",
+      "captures": {
+        "2": {
+          "name": "entity.name.column.new.python string.quoted.multi.python"
+        }
+      }
+    },
+    "dictPairNewSingle": {
+      "match": "(:\\s*)((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=,|})",
+      "captures": {
+        "2": {
+          "name": "entity.name.column.new.python string.quoted.single.python"
+        }
+      }
+    }
+  }
+}

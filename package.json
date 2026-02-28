@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -45,6 +45,22 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "grammars": [
+      {
+        "scopeName": "source.python.docstring.patch.injection",
+        "path": "./syntaxes/python-docstring-patch.tmLanguage.json",
+        "injectTo": [
+          "source.python"
+        ]
+      },
+      {
+        "scopeName": "source.python.rename-mapping.injection",
+        "path": "./syntaxes/python-rename-mapping.tmLanguage.json",
+        "injectTo": [
+          "source.python"
+        ]
+      }
+    ],
     "configuration": {
       "title": "%short.name%",
       "properties": {
@@ -464,7 +480,7 @@
   "devDependencies": {
     "@types/fuzzaldrin-plus": "^0.6.5",
     "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
+    "@types/node": "^20.19.35",
     "@types/semver": "^7.7.0",
     "@types/vscode": "1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.25.0",

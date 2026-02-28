@@ -1,0 +1,162 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Python Docstring Patch Injection",
+  "scopeName": "source.python.docstring.patch.injection",
+  "injectionSelector": "L:source.python",
+  "patterns": [
+    {
+      "include": "#docstring-statement"
+    }
+  ],
+  "repository": {
+    "docstring-statement": {
+      "begin": "^(?=\\s*[rR]?(\\'\\'\\'|\\\"\\\"\\\"|\\'|\\\"))",
+      "end": "((?<=\\1)|^)(?!\\s*[rR]?(\\'\\'\\'|\\\"\\\"\\\"|\\'|\\\"))",
+      "patterns": [
+        {
+          "include": "#docstring"
+        }
+      ]
+    },
+    "docstring": {
+      "patterns": [
+        {
+          "name": "string.quoted.docstring.multi.python",
+          "begin": "(\\'\\'\\'|\\\"\\\"\\\")",
+          "end": "(\\1)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.python"
+            }
+          },
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.python"
+            }
+          },
+          "patterns": [
+            {
+              "include": "source.python#docstring-prompt"
+            },
+            {
+              "include": "source.python#codetags"
+            },
+            {
+              "include": "source.python#docstring-guts-unicode"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.docstring.raw.multi.python",
+          "begin": "([rR])(\\'\\'\\'|\\\"\\\"\\\")",
+          "end": "(\\2)",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.python"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.python"
+            }
+          },
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.python"
+            }
+          },
+          "patterns": [
+            {
+              "include": "source.python#string-consume-escape"
+            },
+            {
+              "include": "source.python#docstring-prompt"
+            },
+            {
+              "include": "source.python#codetags"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.docstring.single.python",
+          "begin": "'",
+          "end": "'|\\n",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.python"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.python"
+            },
+            "1": {
+              "name": "invalid.illegal.newline.python"
+            }
+          },
+          "patterns": [
+            {
+              "include": "source.python#codetags"
+            },
+            {
+              "include": "source.python#docstring-guts-unicode"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.docstring.double.python",
+          "begin": "\"",
+          "end": "\"|\\n",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.python"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.python"
+            },
+            "1": {
+              "name": "invalid.illegal.newline.python"
+            }
+          },
+          "patterns": [
+            {
+              "include": "source.python#codetags"
+            },
+            {
+              "include": "source.python#docstring-guts-unicode"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.docstring.raw.single.python",
+          "begin": "([rR])(\\'|\\\")",
+          "end": "(\\2)|(\\n)",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.python"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.python"
+            }
+          },
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.python"
+            },
+            "2": {
+              "name": "invalid.illegal.newline.python"
+            }
+          },
+          "patterns": [
+            {
+              "include": "source.python#string-consume-escape"
+            },
+            {
+              "include": "source.python#codetags"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
