@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -46,13 +46,6 @@
   "main": "./dist/extension.js",
   "contributes": {
     "grammars": [
-      {
-        "scopeName": "source.python.docstring.patch.injection",
-        "path": "./syntaxes/python-docstring-patch.tmLanguage.json",
-        "injectTo": [
-          "source.python"
-        ]
-      },
       {
         "scopeName": "source.python.rename-mapping.injection",
         "path": "./syntaxes/python-rename-mapping.tmLanguage.json",

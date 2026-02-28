@@ -8,6 +8,7 @@
 - Keep version decorations disabled for `pyproject.toml` until `.venv` exists
 - Reuse a single shared UV terminal for build/install/remove flows (prevents spawning multiple terminals)
 - Improve virtual environment activation command selection across Windows, macOS, and Linux shells
+- Remove the broad Python docstring injection grammar to avoid incorrect string token scoping
 
 ## 0.1.7
 
