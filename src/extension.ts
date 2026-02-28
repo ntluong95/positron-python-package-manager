@@ -33,6 +33,7 @@ import {
   initializeDecoration,
   outdatedDecorationType,
   upToDateDecorationType,
+  environmentMissingDecorationType,
 } from "./decorations";
 import { addVersionComparisonDecorations } from "./packageManager";
 
@@ -282,32 +283,103 @@ export function activate(context: vscode.ExtensionContext) {
 
   console.log("Positron Python Package Manager extension activated!");
 
-  // 📦 Create sidebar tree
-  const treeView = vscode.window.createTreeView("pythonPackageView", {
-    treeDataProvider: sidebarProvider,
-    showCollapseAll: false,
-    canSelectMany: false,
-  });
+  const isPackagePaneEnabled = (): boolean =>
+    vscode.workspace
+      .getConfiguration("positronPythonPackageManager")
+      .get<boolean>("enablePackagePane", false);
 
-  treeView.onDidChangeCheckboxState((event) => {
-    for (const [item, newState] of event.items) {
-      sidebarProvider.handleCheckboxChange(item, newState);
+  const packagePaneDisabledNoticeKey =
+    "positronPythonPackageManager.packagePaneDisabledNoticeShown";
+  let hasShownPackagePaneDisabledNotice = context.globalState.get<boolean>(
+    packagePaneDisabledNoticeKey,
+    false
+  );
+
+  const showPackagePaneDisabledMessage = async () => {
+    if (hasShownPackagePaneDisabledNotice) {
+      return;
     }
-  });
+    hasShownPackagePaneDisabledNotice = true;
+    await context.globalState.update(packagePaneDisabledNoticeKey, true);
+    vscode.window.showInformationMessage(
+      "PyPkgMan package pane is disabled. Enable 'positronPythonPackageManager.enablePackagePane' to use pane commands."
+    );
+  };
 
-  treeView.onDidChangeVisibility((event) => {
-    if (event.visible) {
-      refreshPackages(sidebarProvider);
+  let treeView: vscode.TreeView<PyPackageItem> | undefined;
+  let treeViewCheckboxDisposable: vscode.Disposable | undefined;
+  let treeViewVisibilityDisposable: vscode.Disposable | undefined;
+
+  const disposePackagePane = () => {
+    treeViewCheckboxDisposable?.dispose();
+    treeViewCheckboxDisposable = undefined;
+    treeViewVisibilityDisposable?.dispose();
+    treeViewVisibilityDisposable = undefined;
+    treeView?.dispose();
+    treeView = undefined;
+  };
+
+  const initializePackagePane = () => {
+    if (treeView || !isPackagePaneEnabled()) {
+      return;
     }
-  });
 
-  context.subscriptions.push(treeView);
+    treeView = vscode.window.createTreeView("pythonPackageView", {
+      treeDataProvider: sidebarProvider,
+      showCollapseAll: false,
+      canSelectMany: false,
+    });
+
+    treeViewCheckboxDisposable = treeView.onDidChangeCheckboxState((event) => {
+      for (const [item, newState] of event.items) {
+        sidebarProvider.handleCheckboxChange(item, newState);
+      }
+    });
+
+    treeViewVisibilityDisposable = treeView.onDidChangeVisibility((event) => {
+      if (event.visible) {
+        refreshPackages(sidebarProvider);
+      }
+    });
+
+    context.subscriptions.push(
+      treeView,
+      treeViewCheckboxDisposable,
+      treeViewVisibilityDisposable
+    );
+  };
+
+  initializePackagePane();
+  if (!isPackagePaneEnabled()) {
+    void showPackagePaneDisabledMessage();
+  }
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (
+        !event.affectsConfiguration(
+          "positronPythonPackageManager.enablePackagePane"
+        )
+      ) {
+        return;
+      }
+
+      if (isPackagePaneEnabled()) {
+        initializePackagePane();
+      } else {
+        disposePackagePane();
+      }
+    })
+  );
 
   // 📚 Register commands
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "positron-python-package-manager.refreshPackages",
       () => {
+        if (!isPackagePaneEnabled()) {
+          return;
+        }
         refreshPackages(sidebarProvider);
       }
     ),
@@ -315,6 +387,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.searchPackages",
       async () => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         const input = await vscode.window.showInputBox({
           prompt: vscode.l10n.t(
             "Search Python packages — press Esc to clear filter, Enter to apply"
@@ -331,6 +407,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.installPackages",
       () => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         installPackages(sidebarProvider);
       }
     ),
@@ -338,6 +418,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.uninstallPackage",
       (item: PyPackageItem | undefined) => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         uninstallPackage(item, sidebarProvider);
       }
     ),
@@ -345,6 +429,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.updatePackage",
       (item: PyPackageItem | undefined) => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         updatePackages(item, sidebarProvider);
       }
     ),
@@ -352,6 +440,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.checkOutdatedPackages",
       async () => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         await refreshOutdatedPackages(sidebarProvider);
       }
     ),
@@ -359,6 +451,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.openHelp",
       (pkgName: string) => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         const importName = getImportName(pkgName);
         const pyCode = `import ${importName}; help(${importName})`;
         positron.runtime.executeCode(
@@ -406,6 +502,7 @@ export function activate(context: vscode.ExtensionContext) {
             ) {
               editor.setDecorations(outdatedDecorationType, []);
               editor.setDecorations(upToDateDecorationType, []);
+              editor.setDecorations(environmentMissingDecorationType, []);
             }
           }
         }
@@ -419,6 +516,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.addCustomImport",
       async (item: PyPackageItem | undefined) => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         if (!item) {
           vscode.window.showErrorMessage("No package selected");
           return;
@@ -554,6 +655,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "positron-python-package-manager.filterLoadedPackages",
       () => {
+        if (!isPackagePaneEnabled()) {
+          void showPackagePaneDisabledMessage();
+          return;
+        }
         sidebarProvider.toggleShowOnlyLoadedPackages();
       }
     )

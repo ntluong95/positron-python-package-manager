@@ -1,17 +1,30 @@
 // This file contains TS functions that call UV commands in the terminal.
 
 import * as vscode from "vscode";
-import { sendCommandToTerminal, getActivateCommand, getRemoveVenvCommand } from "./helpers";
+import * as path from "path";
+import {
+  sendCommandsToTerminal,
+  getActivateCommand,
+  getRemoveVenvCommand,
+} from "./helpers";
+
+function getCdCommand(targetPath: string): string {
+  return `cd "${targetPath}"`;
+}
 
 export function uvBuildEnv(filename: string): void {
   try {
     vscode.window.showInformationMessage(`Activating environment from ${filename}.`);
     console.log(`Activating environment from ${filename}.`);
 
-    sendCommandToTerminal(`deactivate`);
-    sendCommandToTerminal(`uv venv --seed`);
-    sendCommandToTerminal(getActivateCommand());
-    uvInstallPackages(filename);
+    const fileDir = path.dirname(filename);
+    const fileBase = path.basename(filename);
+    sendCommandsToTerminal([
+      getCdCommand(fileDir),
+      "uv venv --seed",
+      getActivateCommand(),
+      `uv pip install -r "${fileBase}"`,
+    ]);
   } catch (error) {
     vscode.window.showErrorMessage("Error activating environment from requirements file.");
     console.error(error);
@@ -25,17 +38,13 @@ export function uvBuildEnvPyProject(filename: string): void {
   try {
     vscode.window.showInformationMessage(`Activating environment from pyproject.toml at ${filename}.`);
     console.log(`Activating environment from pyproject.toml at ${filename}.`);
-    
-    // Deactivate any current environment
-    // You might need a different command sequence if uv supports pyproject.toml differently.
-    // For example, you can add a flag like --pyproject if supported by uv.
-    // Adjust the following commands according to uv's specifications.
-    sendCommandToTerminal(`deactivate`);
-    sendCommandToTerminal(`uv sync`);
-    sendCommandToTerminal(getActivateCommand());
 
-    // Optionally, you could also call a function to install packages from pyproject.toml,
-    // similar to uvInstallPackages, but adapted to the toml format.
+    const fileDir = path.dirname(filename);
+    sendCommandsToTerminal([
+      getCdCommand(fileDir),
+      "uv sync",
+      getActivateCommand(),
+    ]);
   } catch (error) {
     vscode.window.showErrorMessage("Error activating environment from pyproject.toml file.");
     console.error(error);
@@ -48,7 +57,12 @@ export function uvInstallPackages(filename: string): void {
     vscode.window.showInformationMessage(`Installing packages from ${filename}.`);
     console.log(`Installing packages from ${filename}.`);
 
-    sendCommandToTerminal(`uv pip install -r "${filename}"`);
+    const fileDir = path.dirname(filename);
+    const fileBase = path.basename(filename);
+    sendCommandsToTerminal([
+      getCdCommand(fileDir),
+      `uv pip install -r "${fileBase}"`,
+    ]);
   } catch (error) {
     vscode.window.showErrorMessage("Error installing packages from requirements file.");
     console.error(error);
@@ -77,7 +91,7 @@ export async function uvWriteRequirements(defaultValue: string): Promise<string 
   console.log(`Creating requirements file: '${result}'.`);
 
   const command = `uv pip freeze > "${result}"`;
-  sendCommandToTerminal(command);
+  sendCommandsToTerminal([command]);
 
   return result;
 }
@@ -88,8 +102,7 @@ export function uvRemoveEnv(envName: string): void {
     vscode.window.showInformationMessage(`Deleting environment: ${actualEnvName}.`);
     console.log(`Deleting environment: ${actualEnvName}.`);
 
-    sendCommandToTerminal("deactivate");
-    sendCommandToTerminal(getRemoveVenvCommand());
+    sendCommandsToTerminal([getRemoveVenvCommand()]);
   } catch (error) {
     vscode.window.showErrorMessage("Error deleting environment.");
     console.error(error);

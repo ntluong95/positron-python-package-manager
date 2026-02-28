@@ -1,5 +1,18 @@
 # Change Log
 
+## 0.1.8
+
+- Add sunset notice for PyPkgMan package-pane features now that Positron IDE has a native package pane
+- Add `positronPythonPackageManager.enablePackagePane` setting to turn the PyPkgMan package pane on/off
+- Show persistent inline notice next to `[project]` in `pyproject.toml` when UV virtual environment (`.venv`) is not installed
+- Keep version decorations disabled for `pyproject.toml` until `.venv` exists
+- Reuse a single shared UV terminal for build/install/remove flows (prevents spawning multiple terminals)
+- Improve virtual environment activation command selection across Windows, macOS, and Linux shells
+
+## 0.1.7
+
+- Add extra syntax highlighting for Python script
+
 ## 0.1.6
 
 - Add support for custom import commands for packages, See [CUSTOM_IMPORTS.md](docs/CUSTOM_IMPORTS.md) for details
