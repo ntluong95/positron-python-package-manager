@@ -33,6 +33,7 @@ import {
   initializeDecoration,
   outdatedDecorationType,
   upToDateDecorationType,
+  environmentMissingDecorationType,
 } from "./decorations";
 import { addVersionComparisonDecorations } from "./packageManager";
 
@@ -501,6 +502,7 @@ export function activate(context: vscode.ExtensionContext) {
             ) {
               editor.setDecorations(outdatedDecorationType, []);
               editor.setDecorations(upToDateDecorationType, []);
+              editor.setDecorations(environmentMissingDecorationType, []);
             }
           }
         }

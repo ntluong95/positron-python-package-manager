@@ -6,7 +6,9 @@ import { RequirementsParser } from "./parser";
 import {
   outdatedDecorationType,
   upToDateDecorationType,
+  environmentMissingDecorationType,
   getDecorationOptions,
+  getEnvironmentMissingDecorationOptions,
 } from "./decorations";
 import * as semver from "semver";
 import { ProjectNameRequirement } from "pip-requirements-js";
@@ -19,6 +21,64 @@ const limit = pLimit(concurrencyLimit);
 // Debouncing map to prevent excessive decoration updates
 const decorationTimeouts = new Map<string, NodeJS.Timeout>();
 const DEBOUNCE_DELAY = 300; // milliseconds
+
+function isPyprojectToml(document: vscode.TextDocument): boolean {
+  return (
+    document.languageId === "toml" &&
+    document.fileName.endsWith("pyproject.toml")
+  );
+}
+
+async function pathExists(uri: vscode.Uri): Promise<boolean> {
+  try {
+    await vscode.workspace.fs.stat(uri);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function hasUvVirtualEnvironment(
+  document: vscode.TextDocument
+): Promise<boolean> {
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+  if (!workspaceFolder) {
+    return false;
+  }
+
+  const venvUri = vscode.Uri.joinPath(workspaceFolder.uri, ".venv");
+  if (!(await pathExists(venvUri))) {
+    return false;
+  }
+
+  const interpreterCandidates =
+    process.platform === "win32"
+      ? [
+          vscode.Uri.joinPath(venvUri, "Scripts", "python.exe"),
+          vscode.Uri.joinPath(venvUri, "Scripts", "python"),
+        ]
+      : [
+          vscode.Uri.joinPath(venvUri, "bin", "python"),
+          vscode.Uri.joinPath(venvUri, "bin", "python3"),
+        ];
+
+  for (const candidate of interpreterCandidates) {
+    if (await pathExists(candidate)) {
+      return true;
+    }
+  }
+
+  if (await pathExists(vscode.Uri.joinPath(venvUri, "pyvenv.cfg"))) {
+    return true;
+  }
+
+  return false;
+}
+
+function findProjectHeaderLine(lines: string[]): number {
+  const index = lines.findIndex((line) => /^\s*\[project\]\s*$/.test(line));
+  return index >= 0 ? index : 0;
+}
 
 //NOTE Parse a dependency line from requirements.txt or pyproject.toml
 function parsePackageLine(
@@ -84,9 +144,26 @@ async function performVersionComparisonDecorations(
   // Clear existing decorations immediately for better UX
   editor.setDecorations(outdatedDecorationType, []);
   editor.setDecorations(upToDateDecorationType, []);
+  editor.setDecorations(environmentMissingDecorationType, []);
 
   const text = document.getText();
   const lines = text.split("\n");
+
+  if (isPyprojectToml(document)) {
+    const hasEnvironment = await hasUvVirtualEnvironment(document);
+    if (!hasEnvironment) {
+      const projectLine = findProjectHeaderLine(lines);
+      const lineLength = document.lineAt(projectLine).text.length;
+      const range = new vscode.Range(
+        new vscode.Position(projectLine, lineLength),
+        new vscode.Position(projectLine, lineLength)
+      );
+      editor.setDecorations(environmentMissingDecorationType, [
+        getEnvironmentMissingDecorationOptions(range, document),
+      ]);
+      return;
+    }
+  }
 
   const outdatedOptions: vscode.DecorationOptions[] = [];
   const upToDateOptions: vscode.DecorationOptions[] = [];
