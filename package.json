@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -79,6 +79,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable decorations showing if package versions are up-to-date or outdated in pip-requirements and pyproject.toml files."
+        },
+        "positronPythonPackageManager.enablePackagePane": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the PyPkgMan package pane in the activity bar."
         },
         "missingPackageInstaller.autoInstall": {
           "type": "boolean",
@@ -327,7 +332,8 @@
         {
           "id": "pythonPackageView",
           "name": "Python",
-          "icon": "resources/dep.svg"
+          "icon": "resources/dep.svg",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
         }
       ]
     },

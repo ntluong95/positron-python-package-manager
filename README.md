@@ -1,22 +1,10 @@
 # Positron Python Package Manager (PyPkgMan)
 
-Manage Python packages directly inside Positron IDE, a fork of VSCode. PyPkgMan provides a tidy sidebar to view installed and loaded packages, quick actions to install/uninstall packages, integration with `pyproject.toml` and `requirements.txt`, and utilities to manage virtual environments through `uv`.
+Easily manage Python packages within Positron IDE (a VSCode fork) using PyPkgMan, which streamlines package management, integrates with `pyproject.toml` and `requirements.txt`, and provides tools for handling virtual environments via `uv`.
 
 ---
 
 ## 🚀 Features
-
-### Package Management
-
-- ✅ 🔍 View all **installed packages** and **loaded packages** in a tidy sidebar. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
-- ✅ 🚀 **Install** and **Uninstall** packages directly from pane with a single click
-- ✅ 🔍 **Search** installed packages by name or title (fuzzy search supported)
-- ✅ ⚙️ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
-- ✅ 💡 Provides quick-fix actions to install missing packages
-
-![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/screenshot.png)
-
-![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/inline-installing.png)
 
 ### Virtual Environment Management with uv
 
@@ -27,6 +15,28 @@ Manage Python packages directly inside Positron IDE, a fork of VSCode. PyPkgMan 
 ![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/pyproject.png)
 
 ---
+
+### Package Management
+
+#### ⚠️ Sunset Notice
+
+Positron IDE now includes a native package pane. The PyPkgMan package pane features are now in maintenance mode and are planned for removal in a future release.
+
+If you prefer the native Positron pane today, disable the PyPkgMan pane with:
+
+```json
+"positronPythonPackageManager.enablePackagePane": false
+```
+
+- ✅ 🔍 View all **installed packages** and **loaded packages** in a tidy sidebar. When hovering the loaded packages'name, a tooltip will show to display the information of name alias, sub-modules imported
+- ✅ 🚀 **Install** and **Uninstall** packages directly from pane with a single click
+- ✅ 🔍 **Search** installed packages by name or title (fuzzy search supported)
+- ✅ ⚙️ Check the box to import packages. Due to the complexity of importing package conventions in Python, check the box will import the entire package. Importing python package usually requires to be declared explicitly
+- ✅ 💡 Provides quick-fix actions to install missing packages
+
+![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/screenshot.png)
+
+![](https://raw.githubusercontent.com/ntluong95/positron-python-package-manager/refs/heads/main/resources/inline-installing.png)
 
 ## 🛠 Requirements
 
@@ -40,13 +50,16 @@ Manage Python packages directly inside Positron IDE, a fork of VSCode. PyPkgMan 
 
 ## ⚙️ Extension Settings
 
-This extension provides the following setting:
+This extension provides the following settings:
 
 - `pythonProject.codeLens`: _(boolean, default: `false`)_  
   Enable/disable latest package version CodeLens in `pip-requirements` and `pyproject.toml` files.
 
 - `positronPythonPackageManager.enableVersionDecorations`: _(boolean, default: `false`)_  
   Enable decorations showing if package versions are up-to-date or outdated in `pip-requirements` and `pyproject.toml` files
+
+- `positronPythonPackageManager.enablePackagePane`: _(boolean, default: `false`)_  
+  Enable or disable the PyPkgMan package pane in the activity bar.
 
 - `missingPackageInstaller.autoInstall`: _(boolean, default: `false`)_
   Automatically install missing Python modules without prompting.
@@ -59,7 +72,7 @@ You can configure this setting in your VS Code settings (`settings.json`) or thr
 
 ## 🔧 Customizing the installer command
 
-PPM lets you customize how the quick-fix installer runs via the workspace setting `missingPackageInstaller.customPipCommand` (default: `pip install`). The extension supports two template placeholders:
+PyPkgMan lets you customize how the quick-fix installer runs via the workspace setting `missingPackageInstaller.customPipCommand` (default: `pip install`). The extension supports two template placeholders:
 
 - `{python}` — replaced with the resolved Python interpreter path (PowerShell-safe on Windows). Use this when you need the interpreter inserted into the command explicitly.
 - `{module}` — replaced with the package/module name being installed.

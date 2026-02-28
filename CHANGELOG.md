@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.8
+
+- Add sunset notice for PyPkgMan package-pane features now that Positron IDE has a native package pane
+- Add `positronPythonPackageManager.enablePackagePane` setting to turn the PyPkgMan package pane on/off
+
+## 0.1.7
+
+- Add extra syntax highlighting for Python script
+
 ## 0.1.6
 
 - Add support for custom import commands for packages, See [CUSTOM_IMPORTS.md](docs/CUSTOM_IMPORTS.md) for details
