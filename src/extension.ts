@@ -138,8 +138,8 @@ export function activate(context: vscode.ExtensionContext) {
       const locationType = actualPythonPath.toLowerCase().includes("venv")
         ? "VirtualEnv"
         : actualPythonPath.toLowerCase().includes("conda")
-        ? "Conda"
-        : "Global";
+          ? "Conda"
+          : "Global";
       console.log(`Detected environment type: ${locationType}`);
       console.log("Using interpreter:", pythonPath);
       // Read settings for auto-install and custom pip command
@@ -766,7 +766,7 @@ export class PyPIHoverProvider implements vscode.HoverProvider {
   constructor(
     public requirementsParser: RequirementsParser,
     public pypi: PyPI
-  ) {}
+  ) { }
 
   public async provideHover(
     document: vscode.TextDocument,
@@ -831,12 +831,11 @@ class PyPICodeLens extends vscode.CodeLens {
 }
 
 export class PyPICodeLensProvider
-  implements vscode.CodeLensProvider<PyPICodeLens>
-{
+  implements vscode.CodeLensProvider<PyPICodeLens> {
   constructor(
     public requirementsParser: RequirementsParser,
     public pypi: PyPI
-  ) {}
+  ) { }
 
   public provideCodeLenses(document: vscode.TextDocument): PyPICodeLens[] {
     const codeLensEnabled = vscode.workspace
