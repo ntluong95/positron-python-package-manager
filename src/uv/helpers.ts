@@ -1,58 +1,95 @@
 // This file contains helpful utility functions.
 
 import * as vscode from "vscode";
-import * as os from "os";
+
+const UV_TERMINAL_NAME = "PyPkgMan UV";
+
+function detectShellType(): "powershell" | "cmd" | "posix" {
+  const shell = (
+    process.env.SHELL ||
+    process.env.ComSpec ||
+    process.env.TERM_PROGRAM ||
+    ""
+  ).toLowerCase();
+
+  if (
+    shell.includes("bash") ||
+    shell.includes("zsh") ||
+    shell.includes("sh")
+  ) {
+    return "posix";
+  }
+
+  if (
+    shell.includes("pwsh") ||
+    shell.includes("powershell") ||
+    (process.env.PSModulePath || "").length > 0
+  ) {
+    return "powershell";
+  }
+
+  return process.platform === "win32" ? "cmd" : "posix";
+}
 
 export function getActivateCommand(): string {
-  const platform = process.platform; // 'win32', 'darwin', 'linux'
-
-  if (platform === "win32") {
-    const termProgram = process.env.TERM_PROGRAM || "";
-    const psModulePath = process.env.PSModulePath || "";
-
-    if (termProgram.toLowerCase().includes("vscode") || psModulePath.length > 0) {
-      // Likely PowerShell
-      return ".venv\\Scripts\\Activate.ps1";
-    } else {
-      // Fallback: assume cmd
-      return ".venv\\Scripts\\activate.bat";
-    }
-  } else {
-    // Mac / Linux
+  if (process.platform !== "win32") {
     return "source .venv/bin/activate";
   }
+
+  const shellType = detectShellType();
+  if (shellType === "powershell") {
+    return ".\\.venv\\Scripts\\Activate.ps1";
+  }
+  if (shellType === "posix") {
+    return "source .venv/Scripts/activate";
+  }
+  return "call .venv\\Scripts\\activate.bat";
 }
 
 export function getRemoveVenvCommand(): string {
-  const platform = process.platform;
-
-  if (platform === "win32") {
-    const psModulePath = process.env.PSModulePath || "";
-    if (psModulePath.length > 0) {
-      // PowerShell
-      return "Remove-Item -Recurse -Force .venv";
-    } else {
-      // Assume CMD
-      return "rmdir /s /q .venv";
-    }
-  } else {
-    // Linux or macOS
+  if (process.platform !== "win32") {
     return "rm -rf .venv";
   }
+
+  const shellType = detectShellType();
+  if (shellType === "powershell") {
+    return "Remove-Item -Recurse -Force .venv";
+  }
+  if (shellType === "posix") {
+    return "rm -rf .venv";
+  }
+  return "rmdir /s /q .venv";
 }
 
-export function sendCommandToTerminal(command: string): void {
-  let terminal = vscode.window.activeTerminal;
-
-  if (!terminal) {
-    vscode.window.showInformationMessage("No active terminal found. Creating new terminal.");
-    terminal = vscode.window.createTerminal();
+export function getOrCreateUvTerminal(): vscode.Terminal {
+  const existing = vscode.window.terminals.find(
+    (terminal) => terminal.name === UV_TERMINAL_NAME
+  );
+  if (existing) {
+    return existing;
   }
+  return vscode.window.createTerminal(UV_TERMINAL_NAME);
+}
 
+export function sendCommandToTerminal(
+  command: string,
+  terminal?: vscode.Terminal
+): vscode.Terminal {
+  const targetTerminal = terminal ?? getOrCreateUvTerminal();
+  targetTerminal.show();
+  targetTerminal.sendText(command);
+  console.log(`Command '${command}' sent to terminal '${targetTerminal.name}'.`);
+  return targetTerminal;
+}
+
+export function sendCommandsToTerminal(commands: string[]): vscode.Terminal {
+  const terminal = getOrCreateUvTerminal();
   terminal.show();
-  terminal.sendText(command);
-
-  console.log(`Command '${command}' sent to terminal.`);
+  for (const command of commands) {
+    terminal.sendText(command);
+    console.log(`Command '${command}' sent to terminal '${terminal.name}'.`);
+  }
+  return terminal;
 }
 
 export function activeFileIsRequirementsTxt(): boolean {

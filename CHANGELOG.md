@@ -4,8 +4,10 @@
 
 - Add sunset notice for PyPkgMan package-pane features now that Positron IDE has a native package pane
 - Add `positronPythonPackageManager.enablePackagePane` setting to turn the PyPkgMan package pane on/off
-- Skip `pyproject.toml` version decorations when a UV virtual environment (`.venv`) is not installed
-- Show a warning message that the virtual environment is not installed yet. - Keep version decorations disabled for `pyproject.toml` until `.venv` exists
+- Show persistent inline notice next to `[project]` in `pyproject.toml` when UV virtual environment (`.venv`) is not installed
+- Keep version decorations disabled for `pyproject.toml` until `.venv` exists
+- Reuse a single shared UV terminal for build/install/remove flows (prevents spawning multiple terminals)
+- Improve virtual environment activation command selection across Windows, macOS, and Linux shells
 
 ## 0.1.7
 
