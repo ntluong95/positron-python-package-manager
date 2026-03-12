@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.9
+
+- Fix Python syntax highlighting issue
+
 ## 0.1.8
 
 - Add sunset notice for PyPkgMan package-pane features now that Positron IDE has a native package pane

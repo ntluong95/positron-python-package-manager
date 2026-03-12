@@ -19,7 +19,7 @@
   ],
   "repository": {
     "dictPairOldMulti": {
-      "match": "((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=:)",
+      "match": "(?:(?<=\\{)|(?<=,))\\s*((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=:)",
       "captures": {
         "1": {
           "name": "entity.name.column.old.python string.quoted.multi.python"
@@ -27,7 +27,7 @@
       }
     },
     "dictPairOldSingle": {
-      "match": "((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=:)",
+      "match": "(?:(?<=\\{)|(?<=,))\\s*((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=:)",
       "captures": {
         "1": {
           "name": "entity.name.column.old.python string.quoted.single.python"
@@ -35,17 +35,17 @@
       }
     },
     "dictPairNewMulti": {
-      "match": "(:\\s*)((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=,|})",
+      "match": "(?<=:)\\s*((?:[rRuUbBfF]{0,3})?(?:\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''))\\s*(?=,|})",
       "captures": {
-        "2": {
+        "1": {
           "name": "entity.name.column.new.python string.quoted.multi.python"
         }
       }
     },
     "dictPairNewSingle": {
-      "match": "(:\\s*)((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=,|})",
+      "match": "(?<=:)\\s*((?:[rRuUbBfF]{0,3})?(?:\"(?!\")(?:\\\\.|[^\"\\\\\\n])*\"|'(?!')(?:\\\\.|[^'\\\\\\n])*'))\\s*(?=,|})",
       "captures": {
-        "2": {
+        "1": {
           "name": "entity.name.column.new.python string.quoted.single.python"
         }
       }
