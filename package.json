@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -153,8 +153,7 @@
       },
       {
         "command": "uv-wingman.buildEnvironment",
-        "title": "PyPkgMan: Build Environment from opened file",
-        "category": "UV"
+        "title": "PyPkgMan: Build Environment from opened file"
       },
       {
         "command": "uv-wingman.buildEnvironment.ui",
@@ -167,8 +166,7 @@
       },
       {
         "command": "uv-wingman.installPackagesUV",
-        "title": "PyPkgMan: install packages from opened file",
-        "category": "UV"
+        "title": "PyPkgMan: install packages from opened file"
       },
       {
         "command": "uv-wingman.installPackagesUV.ui",
@@ -181,8 +179,7 @@
       },
       {
         "command": "uv-wingman.writeRequirementsFile",
-        "title": "PyPkgMan: Write a requirements.txt file from the active environment",
-        "category": "UV"
+        "title": "PyPkgMan: Write a requirements.txt file from the active environment"
       },
       {
         "command": "uv-wingman.writeRequirementsFile.ui",
@@ -195,8 +192,7 @@
       },
       {
         "command": "uv-wingman.deleteEnvironment",
-        "title": "PyPkgMan: Delete Environment",
-        "category": "UV"
+        "title": "PyPkgMan: Delete Environment"
       },
       {
         "command": "uv-wingman.deleteEnvironment.ui",
@@ -209,83 +205,67 @@
       },
       {
         "command": "uv.init",
-        "title": "PyPkgMan: Initialize Project",
-        "category": "UV"
+        "title": "PyPkgMan: Initialize Project"
       },
       {
         "command": "uv.sync",
-        "title": "PyPkgMan: Sync Dependencies",
-        "category": "UV"
+        "title": "PyPkgMan: Sync Dependencies"
       },
       {
         "command": "uv.upgrade",
-        "title": "PyPkgMan: Upgrade Packages",
-        "category": "UV"
+        "title": "PyPkgMan: Upgrade Packages"
       },
       {
         "command": "uv.cache.clean",
-        "title": "PyPkgMan: Clean Cache",
-        "category": "UV"
+        "title": "PyPkgMan: Clean Cache"
       },
       {
         "command": "uv.removePackage",
-        "title": "PyPkgMan: Remove Package from pyproject.toml",
-        "category": "UV"
+        "title": "PyPkgMan: Remove Package from pyproject.toml"
       },
       {
         "command": "uv.searchPackage",
-        "title": "PyPkgMan: Search Package on PyPI",
-        "category": "UV"
+        "title": "PyPkgMan: Search Package on PyPI"
       },
       {
         "command": "uv.generateLock",
-        "title": "PyPkgMan: Generate Lock File",
-        "category": "UV"
+        "title": "PyPkgMan: Generate Lock File"
       },
       {
         "command": "uv.upgradeDependencies",
-        "title": "PyPkgMan: Upgrade Dependencies to the latest",
-        "category": "UV"
+        "title": "PyPkgMan: Upgrade Dependencies to the latest"
       },
       {
         "command": "uv.manageVirtualEnv",
-        "title": "PyPkgMan: Create Virtual Environment",
-        "category": "UV"
+        "title": "PyPkgMan: Create Virtual Environment"
       },
       {
         "command": "uv.runScript",
-        "title": "PyPkgMan: Run Python Script",
-        "category": "UV"
+        "title": "PyPkgMan: Run Python Script"
       },
       {
         "command": "uv.addScriptDependency",
-        "title": "PyPkgMan: Add Script Dependency",
-        "category": "UV"
+        "title": "PyPkgMan: Add Script Dependency"
       },
       {
         "command": "uv.installPython",
-        "title": "PyPkgMan: Install Python Version",
-        "category": "UV"
+        "title": "PyPkgMan: Install Python Version"
       },
       {
         "command": "uv.pinPython",
-        "title": "PyPkgMan: Pin Python Version",
-        "category": "UV"
+        "title": "PyPkgMan: Pin Python Version"
       },
       {
         "command": "uv.installTool",
-        "title": "PyPkgMan: Install Tool",
-        "category": "UV"
+        "title": "PyPkgMan: Install Tool"
       },
       {
         "command": "uv.runTool",
-        "title": "PyPkgMan: Run Tool with UVX",
-        "category": "UV"
+        "title": "PyPkgMan: Run Tool with UVX"
       },
       {
         "command": "uv.add",
-        "title": "PyPkgMan: Add Package to Project",
-        "category": "UV"
+        "title": "PyPkgMan: Add Package to Project"
       },
       {
         "command": "positron-python-package-manager.toggleVersionDecorations",
