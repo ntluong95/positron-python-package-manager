@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.2.1
+- Feature: Adds a Toggle Outline button to the .py file
+
 ## 0.1.9
 
 - Fix Python syntax highlighting issue

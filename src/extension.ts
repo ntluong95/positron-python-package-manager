@@ -1,5 +1,10 @@
 import * as vscode from "vscode";
 import * as positron from "positron";
+
+const OUTLINE_FOCUS_COMMAND = "outline.focus";
+const OUTLINE_REMOVE_VIEW_COMMAND = "outline.removeView";
+
+let isOutlineVisible = false;
 import * as path from "path";
 import * as fs from "fs";
 import { refreshPackages } from "./refresh";
@@ -660,6 +665,19 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         sidebarProvider.toggleShowOnlyLoadedPackages();
+      }
+    ),
+
+    vscode.commands.registerCommand(
+      "positron-python-package-manager.toggleOutline",
+      async () => {
+        if (isOutlineVisible) {
+          await vscode.commands.executeCommand(OUTLINE_REMOVE_VIEW_COMMAND);
+          isOutlineVisible = false;
+        } else {
+          await vscode.commands.executeCommand(OUTLINE_FOCUS_COMMAND);
+          isOutlineVisible = true;
+        }
       }
     )
   );
