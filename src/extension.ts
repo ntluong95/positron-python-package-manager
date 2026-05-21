@@ -41,17 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
   initializeDecoration();
   registerCommands(context);
 
-  // Restore outline toggle state from previous session
-  const savedOutlineVisible = context.workspaceState.get<boolean>(
-    "positronPythonPackageManager.outlineVisible",
-    false
-  );
-  void vscode.commands.executeCommand(
-    "setContext",
-    "positronPythonPackageManager.outlineVisible",
-    savedOutlineVisible
-  );
-
   // Register Python interpreter change listener (async)
   getPythonInterpreterChangeEvent().then((disposable) => {
     context.subscriptions.push(disposable);
@@ -684,29 +673,16 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (!isVisible) {
           await vscode.commands.executeCommand("outline.focus");
-          await context.workspaceState.update(
-            "positronPythonPackageManager.outlineVisible",
-            true
-          );
-          await vscode.commands.executeCommand(
-            "setContext",
-            "positronPythonPackageManager.outlineVisible",
-            true
-          );
         } else {
           await vscode.commands.executeCommand(
             "workbench.action.toggleSidebarVisibility"
           );
-          await context.workspaceState.update(
-            "positronPythonPackageManager.outlineVisible",
-            false
-          );
-          await vscode.commands.executeCommand(
-            "setContext",
-            "positronPythonPackageManager.outlineVisible",
-            false
-          );
         }
+
+        await context.workspaceState.update(
+          "positronPythonPackageManager.outlineVisible",
+          !isVisible
+        );
       }
     )
   );

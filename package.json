@@ -293,12 +293,11 @@
       {
         "command": "positron-python-package-manager.toggleOutline",
         "title": "Toggle Outline",
-        "icon": "$(list-tree)",
+        "category": "Python",
+        "icon": "$(list-unordered)",
         "actionBarOptions": {
-          "controlType": "toggle",
-          "leftTitle": "Hide Outline",
-          "rightTitle": "Show Outline",
-          "toggled": "positronPythonPackageManager.outlineVisible"
+          "controlType": "button",
+          "displayTitle": false
         }
       }
     ],
