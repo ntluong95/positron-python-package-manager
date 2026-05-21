@@ -321,16 +321,49 @@
       ]
     },
     "menus": {
+      "commandPalette": [
+        {
+          "command": "positron-python-package-manager.refreshPackages",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.searchPackages",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.installPackages",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.uninstallPackage",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.updatePackage",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.checkOutdatedPackages",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.openHelp",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.addCustomImport",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        },
+        {
+          "command": "positron-python-package-manager.filterLoadedPackages",
+          "when": "config.positronPythonPackageManager.enablePackagePane"
+        }
+      ],
       "editor/actions/right": [
         {
           "command": "positron-python-package-manager.toggleVersionDecorations",
           "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml",
           "group": "uv@5"
-        },
-        {
-          "command": "positron-python-package-manager.toggleOutline",
-          "when": "editorLangId == python",
-          "group": "outline@1"
         }
       ],
       "editor/actions/left": [
@@ -353,6 +386,11 @@
           "command": "uv-wingman.deleteEnvironment.ui",
           "group": "uv@4",
           "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml"
+        },
+        {
+          "command": "positron-python-package-manager.toggleOutline",
+          "when": "editorLangId == python",
+          "group": "navigation@45"
         }
       ],
       "explorer/context": [
