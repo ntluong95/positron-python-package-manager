@@ -675,7 +675,7 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.commands.executeCommand("outline.focus");
         } else {
           await vscode.commands.executeCommand(
-            "workbench.action.toggleSidebarVisibility"
+            "workbench.action.closeSidebar"
           );
         }
 
