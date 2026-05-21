@@ -2,7 +2,7 @@
   "name": "positron-python-package-manager",
   "displayName": "%display.name%",
   "description": "%description%",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "ntluong95",
   "repository": {
     "type": "git",
@@ -289,6 +289,17 @@
         "command": "positron-python-package-manager.filterLoadedPackages",
         "title": "%filterLoadedPackages%",
         "icon": "$(filter)"
+      },
+      {
+        "command": "positron-python-package-manager.toggleOutline",
+        "title": "Toggle Outline",
+        "icon": "$(list-tree)",
+        "actionBarOptions": {
+          "controlType": "toggle",
+          "leftTitle": "Hide Outline",
+          "rightTitle": "Show Outline",
+          "toggled": "positronPythonPackageManager.outlineVisible"
+        }
       }
     ],
     "viewsContainers": {
@@ -316,6 +327,11 @@
           "command": "positron-python-package-manager.toggleVersionDecorations",
           "when": "resourceFilename == requirements.txt || resourceFilename == pyproject.toml",
           "group": "uv@5"
+        },
+        {
+          "command": "positron-python-package-manager.toggleOutline",
+          "when": "editorLangId == python",
+          "group": "outline@1"
         }
       ],
       "editor/actions/left": [
